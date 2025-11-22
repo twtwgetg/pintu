@@ -9,6 +9,20 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     private Vector2 originalPosition;
     private DraggableGridItem targetItem; // 拖拽时靠近的目标项
     public int originalSiblingIndex { get; private set; } // 原始的层级索引，公开供其他脚本访问
+    // 在 Inspector 中显示的邻居合法状态（true 表示在对应方向存在邻居/相邻）
+    public bool adjacentLeft = false;
+    public bool adjacentRight = false;
+    public bool adjacentTop = false;
+    public bool adjacentBottom = false;
+
+    // 可由外部调用以一次性更新所有邻居状态
+    public void SetAdjacency(bool left, bool right, bool top, bool bottom)
+    {
+        adjacentLeft = left;
+        adjacentRight = right;
+        adjacentTop = top;
+        adjacentBottom = bottom;
+    }
     
     void Awake()
     {
