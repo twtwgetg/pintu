@@ -229,11 +229,11 @@ public class picmgr : MonoBehaviour
             bool isTopCorrect = (topNeighborItem != null && topNeighborItem.gameObject.name == ("GridCell_" + x + "_" + (y + 1)));
             bool isBottomCorrect = (bottomNeighborItem != null && bottomNeighborItem.gameObject.name == ("GridCell_" + x + "_" + (y - 1)));
 
-                // 对角线正确性判断
-                bool isTopRightCorrect = (topRightNeighborItem != null && topRightNeighborItem.gameObject.name == ("GridCell_" + (x + 1) + "_" + (y + 1)));
-                bool isTopLeftCorrect = (topLeftNeighborItem != null && topLeftNeighborItem.gameObject.name == ("GridCell_" + (x - 1) + "_" + (y + 1)));
-                bool isBottomRightCorrect = (bottomRightNeighborItem != null && bottomRightNeighborItem.gameObject.name == ("GridCell_" + (x + 1) + "_" + (y - 1)));
-                bool isBottomLeftCorrect = (bottomLeftNeighborItem != null && bottomLeftNeighborItem.gameObject.name == ("GridCell_" + (x - 1) + "_" + (y - 1)));
+            // 对角线正确性判断
+            bool isTopRightCorrect = (topRightNeighborItem != null && topRightNeighborItem.gameObject.name == ("GridCell_" + (x + 1) + "_" + (y + 1)));
+            bool isTopLeftCorrect = (topLeftNeighborItem != null && topLeftNeighborItem.gameObject.name == ("GridCell_" + (x - 1) + "_" + (y + 1)));
+            bool isBottomRightCorrect = (bottomRightNeighborItem != null && bottomRightNeighborItem.gameObject.name == ("GridCell_" + (x + 1) + "_" + (y - 1)));
+            bool isBottomLeftCorrect = (bottomLeftNeighborItem != null && bottomLeftNeighborItem.gameObject.name == ("GridCell_" + (x - 1) + "_" + (y - 1)));
 
             // 当逻辑正确的邻居存在时，视为相邻合法（边不显示）；否则显示边
             bool rightShown = !isRightCorrect;
@@ -274,16 +274,16 @@ public class picmgr : MonoBehaviour
 
             // 角的显示规则：当与角相邻的任一边需要显示时，显示角
             if (topLeftBorder != null)
-                topLeftBorder.SetActive(topShown || leftShown);
+                topLeftBorder.SetActive(topShown || leftShown || !isTopLeftCorrect);
 
             if (topRightBorder != null)
-                topRightBorder.SetActive(topShown || rightShown);
+                topRightBorder.SetActive(topShown || rightShown || !isTopRightCorrect);
 
             if (bottomRightBorder != null)
-                bottomRightBorder.SetActive(bottomShown || rightShown);
+                bottomRightBorder.SetActive(bottomShown || rightShown || !isBottomRightCorrect);
 
             if (bottomLeftBorder != null)
-                bottomLeftBorder.SetActive(bottomShown || leftShown);
+                bottomLeftBorder.SetActive(bottomShown || leftShown || !isBottomLeftCorrect);
 
             // 刷新角/边的贴图：把具体选择规则委托给 BorderSpriteLoader
             if (topLeftBorder != null)
