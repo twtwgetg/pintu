@@ -228,145 +228,151 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     // 交换两个节点的位置
     private void SwapPositions(DraggableGridItem otherItem)
     {
-        // 准备要交换的两组：源组（dragGroup 或 单个 this）和目标组（包含目标位置相关的所有卡牌）
-        List<DraggableGridItem> srcGroup = (dragGroup != null && dragGroup.Count > 0) ? new List<DraggableGridItem>(dragGroup) : new List<DraggableGridItem>() { this };
-
+        // 准备拖拽组（源组）
+        List<DraggableGridItem> dragGroupList = (dragGroup != null && dragGroup.Count > 0) ? new List<DraggableGridItem>(dragGroup) : new List<DraggableGridItem>() { this };
+        
         // 确保 source 原始位置/索引可用
-        Dictionary<DraggableGridItem, Vector2> srcPositions = new Dictionary<DraggableGridItem, Vector2>();
-        Dictionary<DraggableGridItem, int> srcSibs = new Dictionary<DraggableGridItem, int>();
-        foreach (var it in srcGroup)
-        {
-            if (groupOriginalPositions != null && groupOriginalPositions.TryGetValue(it, out Vector2 p)) srcPositions[it] = p;
-            else srcPositions[it] = it.rectTransform.anchoredPosition;
-            srcSibs[it] = it.transform.GetSiblingIndex();
-        }
-
-        // 收集目标地点的所有卡牌（不仅仅是连接的组）
-        List<DraggableGridItem> tgtGroup = new List<DraggableGridItem>();
-        Dictionary<DraggableGridItem, Vector2> tgtPositions = new Dictionary<DraggableGridItem, Vector2>();
-        Dictionary<DraggableGridItem, int> tgtSibs = new Dictionary<DraggableGridItem, int>();
+        Dictionary<DraggableGridItem, Vector2> originalPositions = new Dictionary<DraggableGridItem, Vector2>();
+        Dictionary<DraggableGridItem, int> originalSiblings = new Dictionary<DraggableGridItem, int>();
         
-        // 首先获取目标项的连接组
-        Dictionary<DraggableGridItem, Vector2Int> dummyCoords;
-        List<DraggableGridItem> connectedTgtGroup = CollectGroupForItem(otherItem, out dummyCoords, out tgtPositions, out tgtSibs);
+        // 记录拖拽组所有项的原始位置和层级
+        foreach (var item in dragGroupList)
+        {
+            if (groupOriginalPositions != null && groupOriginalPositions.TryGetValue(item, out Vector2 p))
+                originalPositions[item] = p;
+            else
+                originalPositions[item] = item.rectTransform.anchoredPosition;
+            originalSiblings[item] = item.transform.GetSiblingIndex();
+        }
         
-        if (connectedTgtGroup != null && connectedTgtGroup.Count > 0)
-        {
-            tgtGroup.AddRange(connectedTgtGroup);
-        }
-        else
-        {
-            // 如果没有连接组，至少添加目标项本身
-            tgtGroup.Add(otherItem);
-            tgtPositions[otherItem] = otherItem.rectTransform.anchoredPosition;
-            tgtSibs[otherItem] = otherItem.transform.GetSiblingIndex();
-        }
-
-        // 按坐标排序以获得稳定的配对
-        List<KeyValuePair<DraggableGridItem, Vector2Int>> srcPairs = new List<KeyValuePair<DraggableGridItem, Vector2Int>>();
-        foreach (var it in srcGroup)
-        {
-            if (TryParseCellName(it.gameObject.name, out int sx, out int sy)) 
-                srcPairs.Add(new KeyValuePair<DraggableGridItem, Vector2Int>(it, new Vector2Int(sx, sy)));
-            else 
-                srcPairs.Add(new KeyValuePair<DraggableGridItem, Vector2Int>(it, new Vector2Int(int.MinValue, int.MinValue)));
-        }
-        srcPairs.Sort((a, b) => { 
-            int c = a.Value.x.CompareTo(b.Value.x); 
-            return c != 0 ? c : a.Value.y.CompareTo(b.Value.y); 
-        });
-
-        // 按坐标排序目标组
-        List<KeyValuePair<DraggableGridItem, Vector2Int>> tgtPairs = new List<KeyValuePair<DraggableGridItem, Vector2Int>>();
-        foreach (var it in tgtGroup)
-        {
-            if (TryParseCellName(it.gameObject.name, out int tx, out int ty)) 
-                tgtPairs.Add(new KeyValuePair<DraggableGridItem, Vector2Int>(it, new Vector2Int(tx, ty)));
-            else 
-                tgtPairs.Add(new KeyValuePair<DraggableGridItem, Vector2Int>(it, new Vector2Int(int.MinValue, int.MinValue)));
-        }
-        tgtPairs.Sort((a, b) => { 
-            int c = a.Value.x.CompareTo(b.Value.x); 
-            return c != 0 ? c : a.Value.y.CompareTo(b.Value.y); 
-        });
-
-        // 准备位置数组：使用源组的原始位置
-        List<Vector2> srcPosList = new List<Vector2>();
-        foreach (var kv in srcPairs) 
-            srcPosList.Add(srcPositions[kv.Key]);
+        // 获取拖拽源项（当前拖拽的卡牌）的原始位置
+        Vector2 dragSourcePosition = originalPositions[this];
+        Vector2 targetItemPosition = otherItem.rectTransform.anchoredPosition;
         
-        // 准备目标位置数组：使用目标组的当前位置
-        List<Vector2> tgtPosList = new List<Vector2>();
-        foreach (var kv in tgtPairs)
+        // 计算拖拽组移动后的目标位置集合
+        Dictionary<DraggableGridItem, Vector2> targetPositions = new Dictionary<DraggableGridItem, Vector2>();
+        foreach (var item in dragGroupList)
         {
-            if (tgtPositions.TryGetValue(kv.Key, out Vector2 p)) 
-                tgtPosList.Add(p);
-            else 
-                tgtPosList.Add(kv.Key.rectTransform.anchoredPosition);
+            // 计算项与拖拽源项的相对位置差
+            Vector2 relativePos = originalPositions[item] - dragSourcePosition;
+            
+            // 基于目标项的位置，计算该项应该移动到的目标位置
+            Vector2 targetPos = targetItemPosition + relativePos;
+            targetPositions[item] = targetPos;
         }
-
-        // 动画：实现拖拽组整体替换目标地点所有卡牌
-        // 源组移动到目标位置，目标组移动到源组的原始位置
+        
+        // 识别拖拽组移动后空出的位置（排除拖拽组成员互相填补的情况）
+        List<Vector2> emptyPositions = new List<Vector2>();
+        foreach (var kvp in originalPositions)
+        {
+            Vector2 originalPos = kvp.Value;
+            bool isFilledByDragGroup = false;
+            
+            // 检查是否被拖拽组的其他成员填补
+            foreach (var targetKvp in targetPositions)
+            {
+                if (targetKvp.Key != kvp.Key && Vector2.Distance(targetKvp.Value, originalPos) < 1f) // 使用小阈值判断位置是否相同
+                {
+                    isFilledByDragGroup = true;
+                    break;
+                }
+            }
+            
+            // 如果没有被拖拽组的其他成员填补，则认为是空出的位置
+            if (!isFilledByDragGroup)
+            {
+                emptyPositions.Add(originalPos);
+            }
+        }
+        
+        // 识别拖拽组覆盖的卡牌（排除已在拖拽组中的卡牌）
+        List<DraggableGridItem> coveredItems = new List<DraggableGridItem>();
+        Transform parent = transform.parent;
+        if (parent != null)
+        {
+            foreach (Transform child in parent)
+            {
+                DraggableGridItem item = child.GetComponent<DraggableGridItem>();
+                if (item == null || dragGroupList.Contains(item))
+                    continue;
+                
+                // 检查该项是否在拖拽组目标位置的覆盖范围内
+                foreach (var targetPos in targetPositions.Values)
+                {
+                    if (Vector2.Distance(item.rectTransform.anchoredPosition, targetPos) < 1f)
+                    {
+                        coveredItems.Add(item);
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // 按照从左到右、从上到下的规则排序空出的位置和覆盖的卡牌
+        SortPositionsByGridOrder(emptyPositions);
+        SortItemsByGridOrder(coveredItems);
+        
+        // 创建位置映射：覆盖的卡牌映射到空出的位置
+        Dictionary<DraggableGridItem, Vector2> replacementMapping = new Dictionary<DraggableGridItem, Vector2>();
+        for (int i = 0; i < Mathf.Min(coveredItems.Count, emptyPositions.Count); i++)
+        {
+            replacementMapping[coveredItems[i]] = emptyPositions[i];
+        }
+        
+        // 准备动画序列
         Sequence seq = DOTween.Sequence();
-        int sCount = srcPairs.Count;
-        int tCount = tgtPairs.Count;
         
-        // 源组移动到目标组的位置
-        for (int i = 0; i < sCount; i++)
+        // 移动拖拽组中的所有项到它们的目标位置
+        foreach (var item in dragGroupList)
         {
-            var srcItem = srcPairs[i].Key;
-            // 确保有足够的目标位置，否则使用第一个目标位置
-            Vector2 dest = tCount > 0 ? tgtPosList[i % tCount] : srcItem.rectTransform.anchoredPosition;
-            seq.Join(srcItem.rectTransform.DOAnchorPos(dest, 0.25f));
+            if (targetPositions.TryGetValue(item, out Vector2 targetPos))
+            {
+                seq.Join(item.rectTransform.DOAnchorPos(targetPos, 0.25f));
+            }
         }
         
-        // 目标组移动到源组的原始位置
-        for (int i = 0; i < tCount; i++)
+        // 移动被覆盖的卡牌到空出的位置
+        foreach (var kvp in replacementMapping)
         {
-            var tgtItem = tgtPairs[i].Key;
-            // 确保有足够的源位置，否则使用第一个源位置
-            Vector2 dest = sCount > 0 ? srcPosList[i % sCount] : tgtItem.rectTransform.anchoredPosition;
-            seq.Join(tgtItem.rectTransform.DOAnchorPos(dest, 0.25f));
+            DraggableGridItem coveredItem = kvp.Key;
+            Vector2 emptyPos = kvp.Value;
+            
+            seq.Join(coveredItem.rectTransform.DOAnchorPos(emptyPos, 0.25f));
         }
-
+        
+        // 保存所有需要交换层级的项
+        Dictionary<DraggableGridItem, int> allOriginalSiblings = new Dictionary<DraggableGridItem, int>();
+        foreach (var item in dragGroupList)
+        {
+            allOriginalSiblings[item] = originalSiblings[item];
+        }
+        foreach (var item in coveredItems)
+        {
+            allOriginalSiblings[item] = item.transform.GetSiblingIndex();
+        }
+        
         seq.OnComplete(() => {
-            // 交换 sibling 索引，确保层级关系正确
-            // 首先记录所有需要交换的索引
-            Dictionary<DraggableGridItem, int> finalSiblings = new Dictionary<DraggableGridItem, int>();
+            // 交换层级关系：保持原有的层级相对顺序
+            // 先记录所有项的原始层级
+            List<DraggableGridItem> allItems = new List<DraggableGridItem>(dragGroupList);
+            allItems.AddRange(coveredItems);
             
-            // 为源组和目标组中的每个项分配新的层级索引
-            for (int i = 0; i < Mathf.Max(sCount, tCount); i++)
+            // 创建一个临时列表存储所有项及其原始层级，用于排序
+            List<(DraggableGridItem item, int originalIndex)> itemWithOriginalIndex = new List<(DraggableGridItem, int)>();
+            foreach (var item in allItems)
             {
-                if (i < sCount && i < tCount)
-                {
-                    var sItem = srcPairs[i].Key;
-                    var tItem = tgtPairs[i].Key;
-                    int sIdx = srcSibs.ContainsKey(sItem) ? srcSibs[sItem] : sItem.transform.GetSiblingIndex();
-                    int tIdx = tgtSibs.ContainsKey(tItem) ? tgtSibs[tItem] : tItem.transform.GetSiblingIndex();
-                    
-                    finalSiblings[sItem] = tIdx;
-                    finalSiblings[tItem] = sIdx;
-                }
-                else if (i < sCount)
-                {
-                    var sItem = srcPairs[i].Key;
-                    // 如果源组项多于目标组，使用其原始索引
-                    finalSiblings[sItem] = srcSibs.ContainsKey(sItem) ? srcSibs[sItem] : sItem.transform.GetSiblingIndex();
-                }
-                else if (i < tCount)
-                {
-                    var tItem = tgtPairs[i].Key;
-                    // 如果目标组项多于源组，使用其原始索引
-                    finalSiblings[tItem] = tgtSibs.ContainsKey(tItem) ? tgtSibs[tItem] : tItem.transform.GetSiblingIndex();
-                }
+                itemWithOriginalIndex.Add((item, allOriginalSiblings[item]));
             }
             
-            // 应用新的层级索引
-            foreach (var kv in finalSiblings)
+            // 按照原始层级排序
+            itemWithOriginalIndex.Sort((a, b) => a.originalIndex.CompareTo(b.originalIndex));
+            
+            // 重新设置层级，保持相对顺序
+            foreach (var (item, _) in itemWithOriginalIndex)
             {
-                kv.Key.transform.SetSiblingIndex(kv.Value);
+                item.transform.SetAsLastSibling();
             }
-
+            
             // 更新边框显示状态
             picmgr picManager = GetComponentInParent<picmgr>();
             if (picManager != null)
@@ -374,6 +380,64 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
                 picManager.UpdateBorderVisibility();
             }
         });
+    }
+    
+    // 按照从左到右、从上到下的规则对位置进行排序
+    private void SortPositionsByGridOrder(List<Vector2> positions)
+    {
+        positions.Sort((a, b) => {
+            // 首先按照y坐标排序（从上到下）
+            int yComparison = b.y.CompareTo(a.y);
+            if (yComparison != 0)
+                return yComparison;
+            // 然后按照x坐标排序（从左到右）
+            return a.x.CompareTo(b.x);
+        });
+    }
+    
+    // 按照从左到右、从上到下的规则对卡牌项进行排序
+    private void SortItemsByGridOrder(List<DraggableGridItem> items)
+    {
+        items.Sort((a, b) => {
+            // 首先按照y坐标排序（从上到下）
+            int yComparison = b.rectTransform.anchoredPosition.y.CompareTo(a.rectTransform.anchoredPosition.y);
+            if (yComparison != 0)
+                return yComparison;
+            // 然后按照x坐标排序（从左到右）
+            return a.rectTransform.anchoredPosition.x.CompareTo(b.rectTransform.anchoredPosition.x);
+        });
+    }
+    
+    // 根据位置找到对应的卡牌项
+    private DraggableGridItem FindItemAtPosition(Vector2 targetPos)
+    {
+        Transform parent = transform.parent;
+        if (parent == null) return null;
+        
+        float minDistance = float.MaxValue;
+        DraggableGridItem closestItem = null;
+        
+        float gridSpacing = 100f; // 假设网格间距为100，可以根据实际情况调整
+        float tolerance = gridSpacing * 0.5f; // 容差设为网格间距的一半
+        
+        foreach (Transform child in parent)
+        {
+            // 跳过拖拽组内的项
+            if (dragGroup != null && dragGroup.Contains(child.GetComponent<DraggableGridItem>()))
+                continue;
+            
+            DraggableGridItem item = child.GetComponent<DraggableGridItem>();
+            if (item == null) continue;
+            
+            float distance = Vector2.Distance(item.rectTransform.anchoredPosition, targetPos);
+            if (distance < tolerance && distance < minDistance)
+            {
+                minDistance = distance;
+                closestItem = item;
+            }
+        }
+        
+        return closestItem;
     }
 
     // 收集与当前项连接的邻居并加入拖拽组
