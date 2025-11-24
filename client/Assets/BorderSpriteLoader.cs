@@ -24,7 +24,7 @@ public class BorderSpriteLoader : MonoBehaviour
 
         Image img = GetComponent<Image>();
         if (img == null) return;
-
+        // img.material = new Material(Shader.Find("Hidden/imagec"));
         // 静态缓存，避免重复加载
         if (spriteCache == null)
             spriteCache = new Dictionary<string, Sprite>();
@@ -33,17 +33,26 @@ public class BorderSpriteLoader : MonoBehaviour
         if (spriteCache.TryGetValue(resourceName, out s)) {
             img.sprite = s;
             img.color = Color.white;
-            return;
-        }
-        s = Resources.Load<Sprite>(resourceName);
-        if (s != null) {
-            img.sprite = s;
-            img.color = Color.white;
-            spriteCache[resourceName] = s;
         } else {
-            img.sprite = null;
-            img.color = keepColorIfMissing ? Color.gray : Color.clear;
+            s = Resources.Load<Sprite>(resourceName);
+            if (s != null) {
+                img.sprite = s;
+                img.color = Color.white;
+                spriteCache[resourceName] = s;
+            } else {
+                img.sprite = null;
+                img.color = keepColorIfMissing ? Color.gray : Color.clear;
+            }
         }
+        
+        // 加载对应的mask贴图（添加m_前缀）
+        // string maskResourceName = "m_" + resourceName;
+        // if (img.material != null) {
+        //     Texture2D maskTexture = Resources.Load<Texture2D>(maskResourceName);
+        //     if (maskTexture != null) {
+        //         img.material.SetTexture("_Mask", maskTexture);
+        //     }
+        // }
     }
     // 静态缓存，避免重复加载
     private static Dictionary<string, Sprite> spriteCache;

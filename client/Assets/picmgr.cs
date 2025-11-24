@@ -1,3 +1,4 @@
+using cfg;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,26 @@ public class picmgr : MonoBehaviour
     public Texture2D pic;
     public int width=3;
     public int height=3;
+
+    internal static picmgr instance;
+    private void Awake()
+    {
+        instance = this;
+    }
+
+    internal void LoadLevel(DrLevel leevel)
+    {
+        width = leevel.LevelFigureX;
+        height = leevel.LevelFigureY;
+        pic = Resources.Load(leevel.LevelFigure) as Texture2D;
+        CreateGridImages();
+        StartCoroutine(rl());
+    }
+    IEnumerator rl()
+    {
+        yield return null;
+        ShuffleGridPositions();
+    }
     // Start is called before the first frame update
     void Start()
     {
