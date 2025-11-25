@@ -14,7 +14,7 @@ public class picmgrEditor : Editor
 
         if (GUILayout.Button("生成网格图像"))
         {
-            picManager.CreateGridImages();
+            picManager.tCreateGridImages();
         }
         
         if (GUILayout.Button("打乱网格位置"))

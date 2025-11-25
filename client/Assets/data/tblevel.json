@@ -1,0 +1,971 @@
+[
+  {
+    "id": 100001,
+    "next_level": 100002,
+    "level_figure": "picture-1",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 1,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 100002,
+    "next_level": 100003,
+    "level_figure": "picture-2",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 1,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 100003,
+    "next_level": 100004,
+    "level_figure": "picture-3",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 1,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 100004,
+    "next_level": 100005,
+    "level_figure": "picture-4",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 100005,
+    "next_level": 100006,
+    "level_figure": "picture-5",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 100006,
+    "next_level": 100007,
+    "level_figure": "picture-6",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 100007,
+    "next_level": 100008,
+    "level_figure": "picture-7",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 100008,
+    "next_level": 100009,
+    "level_figure": "picture-1",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 100009,
+    "next_level": 100010,
+    "level_figure": "picture-1",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 100010,
+    "next_level": 100011,
+    "level_figure": "picture-1",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 100011,
+    "next_level": 100012,
+    "level_figure": "picture-1",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 100012,
+    "next_level": 100013,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 100013,
+    "next_level": 100014,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 100014,
+    "next_level": 100015,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 100015,
+    "next_level": 100016,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 100016,
+    "next_level": 100017,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 100017,
+    "next_level": 100018,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 100018,
+    "next_level": 100019,
+    "level_figure": "",
+    "level_figure_x": 5,
+    "level_figure_y": 5,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      40,
+      70
+    ]
+  },
+  {
+    "id": 100019,
+    "next_level": 100020,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      19,
+      30
+    ]
+  },
+  {
+    "id": 100020,
+    "next_level": 100021,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      29,
+      44
+    ]
+  },
+  {
+    "id": 100021,
+    "next_level": 100022,
+    "level_figure": "",
+    "level_figure_x": 5,
+    "level_figure_y": 5,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      71105
+    ]
+  },
+  {
+    "id": 100022,
+    "next_level": 100023,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      19,
+      30
+    ]
+  },
+  {
+    "id": 100023,
+    "next_level": 100024,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      29,
+      44
+    ]
+  },
+  {
+    "id": 100024,
+    "next_level": 100025,
+    "level_figure": "",
+    "level_figure_x": 5,
+    "level_figure_y": 5,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      71105
+    ]
+  },
+  {
+    "id": 100025,
+    "next_level": 200001,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 200001,
+    "next_level": 200002,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 200002,
+    "next_level": 200003,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 200003,
+    "next_level": 200004,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 200004,
+    "next_level": 200005,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 200005,
+    "next_level": 200006,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 200006,
+    "next_level": 200007,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 200007,
+    "next_level": 200008,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 200008,
+    "next_level": 200009,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 200009,
+    "next_level": 200010,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 200010,
+    "next_level": 200011,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 200011,
+    "next_level": 200012,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 200012,
+    "next_level": 200013,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 200013,
+    "next_level": 200014,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 200014,
+    "next_level": 200015,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 200015,
+    "next_level": 200016,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 200016,
+    "next_level": 200017,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 200017,
+    "next_level": 200018,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 200018,
+    "next_level": 200019,
+    "level_figure": "",
+    "level_figure_x": 5,
+    "level_figure_y": 5,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      40,
+      70
+    ]
+  },
+  {
+    "id": 200019,
+    "next_level": 200020,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      19,
+      30
+    ]
+  },
+  {
+    "id": 200020,
+    "next_level": 200021,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      29,
+      44
+    ]
+  },
+  {
+    "id": 200021,
+    "next_level": 200022,
+    "level_figure": "",
+    "level_figure_x": 5,
+    "level_figure_y": 5,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      71105
+    ]
+  },
+  {
+    "id": 200022,
+    "next_level": 200023,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      19,
+      30
+    ]
+  },
+  {
+    "id": 200023,
+    "next_level": 200024,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      29,
+      44
+    ]
+  },
+  {
+    "id": 200024,
+    "next_level": 200025,
+    "level_figure": "",
+    "level_figure_x": 5,
+    "level_figure_y": 5,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      71105
+    ]
+  },
+  {
+    "id": 200025,
+    "next_level": 300001,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 300001,
+    "next_level": 300002,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 300002,
+    "next_level": 300003,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 300003,
+    "next_level": 300004,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 300004,
+    "next_level": 300005,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 300005,
+    "next_level": 300006,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 300006,
+    "next_level": 300007,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 300007,
+    "next_level": 300008,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 300008,
+    "next_level": 300009,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      6,
+      11
+    ]
+  },
+  {
+    "id": 300009,
+    "next_level": 300010,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 300010,
+    "next_level": 300011,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 300011,
+    "next_level": 300012,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 300012,
+    "next_level": 300013,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 300013,
+    "next_level": 300014,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 300014,
+    "next_level": 300015,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 300015,
+    "next_level": 300016,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 300016,
+    "next_level": 300017,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      12,
+      18
+    ]
+  },
+  {
+    "id": 300017,
+    "next_level": 300018,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  },
+  {
+    "id": 300018,
+    "next_level": 300019,
+    "level_figure": "",
+    "level_figure_x": 5,
+    "level_figure_y": 5,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      40,
+      70
+    ]
+  },
+  {
+    "id": 300019,
+    "next_level": 300020,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      19,
+      30
+    ]
+  },
+  {
+    "id": 300020,
+    "next_level": 300021,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      29,
+      44
+    ]
+  },
+  {
+    "id": 300021,
+    "next_level": 300022,
+    "level_figure": "",
+    "level_figure_x": 5,
+    "level_figure_y": 5,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      71105
+    ]
+  },
+  {
+    "id": 300022,
+    "next_level": 300023,
+    "level_figure": "",
+    "level_figure_x": 3,
+    "level_figure_y": 3,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      19,
+      30
+    ]
+  },
+  {
+    "id": 300023,
+    "next_level": 300024,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      29,
+      44
+    ]
+  },
+  {
+    "id": 300024,
+    "next_level": 300025,
+    "level_figure": "",
+    "level_figure_x": 5,
+    "level_figure_y": 5,
+    "difficulty_tier": 2,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      71105
+    ]
+  },
+  {
+    "id": 300025,
+    "next_level": 0,
+    "level_figure": "",
+    "level_figure_x": 4,
+    "level_figure_y": 4,
+    "difficulty_tier": 0,
+    "out_of_place_number": 0,
+    "m_distance_range": [
+      16,
+      28
+    ]
+  }
+]
