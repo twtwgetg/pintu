@@ -16,7 +16,7 @@ public class picmgr : MonoBehaviour
         instance = this;
         ResizeChapterContent();
     }
-    private void ResizeChapterContent()
+    public void ResizeChapterContent()
     {
         // 获取屏幕尺寸
         float screenWidth = Screen.width;

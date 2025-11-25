@@ -157,26 +157,8 @@ public class frm_chapter : frmbase
                 pcard.uvWidth = 1.0f / chapter.ChapterFigureX;
                 pcard.uvHeight = 1.0f / chapter.ChapterFigureY;
                 pcard.texture = pic;
-                pcard.Load(); 
-                // 创建边框
-                //CreateBorders(cellObject, cellWidth, cellHeight);
-                
-                // 可以在这里添加关卡ID文本或其他信息
-                GameObject textObject = new GameObject("LevelText");
-                textObject.transform.SetParent(cellObject.transform, false);
-                
-                TextMeshProUGUI text = textObject.AddComponent<TextMeshProUGUI>();
-                text.text = levelid.ToString();
-                text.alignment = TextAlignmentOptions.Center;
-                text.fontSize = 24;
-                text.color = Color.black;
-                
-                RectTransform textRect = text.GetComponent<RectTransform>();
-                textRect.anchorMin = new Vector2(0, 0);
-                textRect.anchorMax = new Vector2(1, 1);
-                textRect.pivot = new Vector2(0.5f, 0.5f);
-                textRect.offsetMin = Vector2.zero;
-                textRect.offsetMax = Vector2.zero;
+                pcard.Load();
+                pcard.level.text = levelid.ToString(); 
             }
         }
         

@@ -10,7 +10,7 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     private RectTransform rectTransform;
     public Canvas canvas;
     private Vector2 originalPosition;
-    private DraggableGridItem targetItem; // 拖拽时靠近的目标项
+    public static Vector2 targetPosition; // 拖拽时靠近的目标位置
     public int originalSiblingIndex { get; private set; } // 原始的层级索引，公开供其他脚本访问
     // 在 Inspector 中显示的邻居合法状态（true 表示在对应方向存在邻居/相邻）
     public bool adjacentLeft = false;
@@ -46,6 +46,7 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         // 记录原始位置和层级
         originalPosition = rectTransform.anchoredPosition;
+        targetPosition = rectTransform.anchoredPosition;
         originalSiblingIndex = transform.GetSiblingIndex();
         
         // 收集和本格连接的邻居，一起移动
@@ -87,12 +88,31 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
             }
         }
 
-        // 检查是否靠近其他节点（忽略组内项）
-    CheckNearbyItems();
+        var diff = rectTransform.anchoredPosition - originalPosition;
+        if (Mathf.Abs(diff.x)> carWid/2 || 
+            Mathf.Abs(diff.y)> carHei/2)
+        {
+            int x = Mathf.RoundToInt(rectTransform.anchoredPosition.x / carWid);
+            int y = Mathf.RoundToInt(rectTransform.anchoredPosition.y / carHei);
+            targetPosition = new Vector2(x * carWid, y * carHei);
+        }
     }
-    
+    float carWid
+    {
+        get
+        {
+            return rectTransform.rect.width;
+        }
+    }
+    float carHei
+    {
+        get
+        {
+            return rectTransform.rect.height;
+        }
+    }
     // 检查拖拽组是否在父对象边界内
-    private bool IsGroupWithinParentBounds()
+    private bool IsGroupWithinParentBounds(Dictionary<DraggableGridItem, Vector2> potentialPositions = null)
     {
         // 获取父对象的RectTransform
         RectTransform parentRect = transform.parent as RectTransform;
@@ -101,27 +121,55 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
         // 获取父对象的世界空间边界
         Rect parentWorldRect = parentRect.rect;
         
-        // 检查组内所有项是否都在父对象边界内
-        if (dragGroup != null)
+        // 确定要检查的项目集合
+        IEnumerable<DraggableGridItem> itemsToCheck;
+        if (potentialPositions != null)
         {
-            foreach (var item in dragGroup)
+            // 如果提供了潜在位置，使用该字典中的所有项
+            itemsToCheck = potentialPositions.Keys;
+        }
+        else if (dragGroup != null)
+        {
+            // 否则使用当前拖拽组中的项
+            itemsToCheck = dragGroup;
+        }
+        else
+        {
+            // 如果没有拖拽组，只有当前项
+            itemsToCheck = new List<DraggableGridItem> { this };
+        }
+        
+        // 检查组内所有项是否都在父对象边界内
+        foreach (var item in itemsToCheck)
+        {
+            RectTransform itemRect = item.rectTransform;
+            
+            // 获取项的位置
+            Vector2 itemPosition;
+            if (potentialPositions != null && potentialPositions.TryGetValue(item, out Vector2 pos))
             {
-                RectTransform itemRect = item.rectTransform;
-                
-                // 计算项的边界
-                float itemLeft = itemRect.anchoredPosition.x - itemRect.rect.width / 2;
-                float itemRight = itemRect.anchoredPosition.x + itemRect.rect.width / 2;
-                float itemTop = itemRect.anchoredPosition.y + itemRect.rect.height / 2;
-                float itemBottom = itemRect.anchoredPosition.y - itemRect.rect.height / 2;
-                
-                // 检查是否超出父对象边界
-                if (itemLeft < parentWorldRect.xMin || 
-                    itemRight > parentWorldRect.xMax || 
-                    itemBottom < parentWorldRect.yMin || 
-                    itemTop > parentWorldRect.yMax)
-                {
-                    return false;
-                }
+                // 使用潜在位置
+                itemPosition = pos;
+            }
+            else
+            {
+                // 使用当前位置
+                itemPosition = itemRect.anchoredPosition;
+            }
+            
+            // 计算项的边界
+            float itemLeft = itemPosition.x - itemRect.rect.width / 2;
+            float itemRight = itemPosition.x + itemRect.rect.width / 2;
+            float itemTop = itemPosition.y + itemRect.rect.height / 2;
+            float itemBottom = itemPosition.y - itemRect.rect.height / 2;
+            
+            // 检查是否超出父对象边界
+            if (itemLeft < parentWorldRect.xMin || 
+                itemRight > parentWorldRect.xMax || 
+                itemBottom < parentWorldRect.yMin || 
+                itemTop > parentWorldRect.yMax)
+            {
+                return false;
             }
         }
         return true;
@@ -136,6 +184,23 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
             transform.DOScaleX(1, 0.25f).onComplete = () =>
             {
                 transform.localScale = new Vector3(1, 1, 1);
+            };
+        };
+
+
+        var x = transform.localPosition.x;
+        float wid = transform.GetComponent<RectTransform>().rect.width;
+        transform.DOLocalMoveX(x + wid / 2, 0.25f).onComplete = () =>
+        {
+            var p = transform.localPosition;
+            p.x = x + wid / 2;
+            transform.localPosition = p;
+
+            transform.DOLocalMoveX(x, 0.25f).onComplete = () =>
+            {
+                var p = transform.localPosition;
+                p.x = x;
+                transform.localPosition = p;
             };
         };
     }
@@ -155,11 +220,22 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     }
     public void OnEndDrag(PointerEventData eventData)
     {
-        // 检查是否有目标项，并且拖拽组在父对象边界内
-        if (targetItem != null)
+         
+        bool shouldSwap = false;
+ 
+        if(originalPosition != targetPosition)
         {
-            // 如果有目标项且位置有效，交换位置
-            SwapPositions(targetItem);
+            // 条件2: 所有拖拽组成员位置是否合法
+            bool isPositionValid = CheckPotentialPositionValidity();
+            if (isPositionValid)
+            {
+                shouldSwap = true;
+            }
+        }
+        if (shouldSwap)
+        {
+            // 执行交换位置
+            SwapPositions(targetPosition);
         }
         else
         {
@@ -167,8 +243,8 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
             ResetAllDraggedItemsToOriginalPosition();
         }
         
-        // 清空目标项引用并清理组数据
-        targetItem = null;
+        // 清空目标位置引用并清理组数据
+        targetPosition = Vector2.zero;
         dragGroup = null;
         groupOriginalPositions = null;
         groupOriginalSiblingIndices = null;
@@ -222,41 +298,35 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
         }
     }
     
-    // 检查附近是否有其他节点
-    private void CheckNearbyItems()
+ 
+    
+    // 检查拖拽组挪到潜在目标位置后是否合法
+    private bool CheckPotentialPositionValidity(Vector2 potentialTargetPos = default)
     {
-        targetItem = null;
-        float minDistance = float.MaxValue;
+        // 准备拖拽组（源组）
+        List<DraggableGridItem> dragGroupList = (dragGroup != null && dragGroup.Count > 0) ? new List<DraggableGridItem>(dragGroup) : new List<DraggableGridItem>() { this };
         
-        // 获取父对象下的所有子节点
-        Transform parent = transform.parent;
-        if (parent == null) return;
+        RectTransform parentRect = transform.parent as RectTransform;
+        if (parentRect == null) return false;
+
+        // 获取父对象的边界
+        Rect parentWorldRect = new Rect(0, 0, parentRect.rect.width, parentRect.rect.height);
         
-        foreach (Transform child in parent)
+        // 计算拖拽组移动后的目标位置集合，并检查每个位置是否合法
+        foreach (var item in dragGroupList)
         {
-            // 跳过自己
-            if (child == transform) continue;
-            
-            DraggableGridItem item = child.GetComponent<DraggableGridItem>();
-            if (item != null)
+            Vector2 newPosition = item.rectTransform.anchoredPosition+new Vector2(item.rectTransform.sizeDelta.x/2,item.rectTransform.sizeDelta.y/2);
+            if(!parentWorldRect.Contains(newPosition))
             {
-                // 忽略拖拽组内项
-                if (dragGroup != null && dragGroup.Contains(item)) continue;
-                // 计算距离
-                float distance = Vector2.Distance(rectTransform.anchoredPosition, item.rectTransform.anchoredPosition);
-                
-                // 如果距离小于某个阈值并且是最近的
-                if (distance < 100f && distance < minDistance)
-                {
-                    minDistance = distance;
-                    targetItem = item;
-                }
+                return false;
             }
         }
+        
+        return true;
     }
-    
-    // 交换两个节点的位置
-    private void SwapPositions(DraggableGridItem otherItem)
+ 
+    // 交换位置
+    private void SwapPositions(Vector2 targetPos)
     {
         // 准备拖拽组（源组）
         List<DraggableGridItem> dragGroupList = (dragGroup != null && dragGroup.Count > 0) ? new List<DraggableGridItem>(dragGroup) : new List<DraggableGridItem>() { this };
@@ -277,7 +347,6 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
         
         // 获取拖拽源项（当前拖拽的卡牌）的原始位置
         Vector2 dragSourcePosition = originalPositions[this];
-        Vector2 targetItemPosition = otherItem.rectTransform.anchoredPosition;
         
         // 计算拖拽组移动后的目标位置集合
         Dictionary<DraggableGridItem, Vector2> targetPositions = new Dictionary<DraggableGridItem, Vector2>();
@@ -286,9 +355,9 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
             // 计算项与拖拽源项的相对位置差
             Vector2 relativePos = originalPositions[item] - dragSourcePosition;
             
-            // 基于目标项的位置，计算该项应该移动到的目标位置
-            Vector2 targetPos = targetItemPosition + relativePos;
-            targetPositions[item] = targetPos;
+            // 基于目标位置，计算该项应该移动到的目标位置
+            Vector2 itemTargetPos = targetPos + relativePos;
+            targetPositions[item] = itemTargetPos;
         }
         
         // 识别拖拽组移动后空出的位置（排除拖拽组成员互相填补的情况）
@@ -327,9 +396,9 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
                     continue;
                 
                 // 检查该项是否在拖拽组目标位置的覆盖范围内
-                foreach (var targetPos in targetPositions.Values)
+                foreach (var vtargetPos in targetPositions.Values)
                 {
-                    if (Vector2.Distance(item.rectTransform.anchoredPosition, targetPos) < 1f)
+                    if (Vector2.Distance(item.rectTransform.anchoredPosition, vtargetPos) < 1f)
                     {
                         coveredItems.Add(item);
                         break;
@@ -355,9 +424,9 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
         // 移动拖拽组中的所有项到它们的目标位置
         foreach (var item in dragGroupList)
         {
-            if (targetPositions.TryGetValue(item, out Vector2 targetPos))
+            if (targetPositions.TryGetValue(item, out Vector2 vtargetPos))
             {
-                seq.Join(item.rectTransform.DOAnchorPos(targetPos, 0.25f));
+                seq.Join(item.rectTransform.DOAnchorPos(vtargetPos, 0.25f));
             }
         }
         

@@ -20,7 +20,7 @@ public class frm_game : frmbase
             // 2. 设置边距（Left/Right/Top/Bottom）：与图片中数值一致
             rectTrans.offsetMin = new Vector2(82.82125f, 124.4235f);  // Left和Bottom（offsetMin = (Left, Bottom)）
             rectTrans.offsetMax = new Vector2(-82.82125f, -208.2435f); // Right和Top（offsetMax = (-Right, -Top)）
-
+            mgr.ResizeChapterContent();
             var leevel = datamgr.Instance.GetLevel((int)x);
             level.text = $"Level { leevel.Id}";
             show();
