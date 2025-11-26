@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using LitJson;
+using System;
 
 public class opend
 {
@@ -15,6 +16,7 @@ public class opend
     internal bool Opened(int id)
     {
         bool ret = false;
+        
         for(int i = 0; i < _data.Count; i++)
         {
             if(int.Parse(_data[i].ToString()) == id)
@@ -69,6 +71,12 @@ public class GameData
                 x.SetJsonType(JsonType.Array);
                 data["opened"] = x;
             }
+            if (!data["opened"].IsArray)
+            {
+                var x = new JsonData();
+                x.SetJsonType(JsonType.Array);
+                data["opened"] = x;
+            }
             return data["opened"];
         }
 
@@ -107,7 +115,16 @@ public class PlayerData : MonoBehaviour
         if(File.Exists(pa))
         {
             var json = File.ReadAllText(pa);
-            JsonData data = JsonMapper.ToObject<JsonData>(json);
+            JsonData data = null;
+            try
+            {
+               data = JsonMapper.ToObject<JsonData>(json);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e.Message);
+                data = new JsonData();
+            }
             if(data==null){
                 data = new JsonData();
             }

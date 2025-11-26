@@ -61,6 +61,7 @@ public class frm_setup : frmbase
             Main.DispEvent("onLevelChange");
             
             Debug.Log("Game initialized successfully.");
+            Application.Quit();
         }
         catch (Exception e)
         {

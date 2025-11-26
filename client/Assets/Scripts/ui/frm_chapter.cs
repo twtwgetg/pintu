@@ -50,7 +50,7 @@ public class frm_chapter : frmbase
         float screenHeight = Screen.height;
         
         //// 设置边界边距（最低50像素）
-        float margin = 100f;
+        float margin = 130f;
         
         //// 计算可用空间
         float availableWidth = screenWidth - 2 * margin;
@@ -146,8 +146,8 @@ public class frm_chapter : frmbase
                 // 设置位置和尺寸
                 cellRect.anchorMin = new Vector2(0, 0);
                 cellRect.anchorMax = new Vector2(0, 0);
-                cellRect.pivot = new Vector2(0, 0);
-                cellRect.anchoredPosition = new Vector2(i * cellWidth,(chapter.ChapterFigureY- 1 - j) * cellHeight);
+                cellRect.pivot = new Vector2(0.5f, 0);
+                cellRect.anchoredPosition = new Vector2((i+0.5f) * cellWidth,(chapter.ChapterFigureY- 1 - j) * cellHeight);
                 cellRect.sizeDelta = new Vector2(cellWidth-4 , cellHeight-4);
                   // 添加RawImage组件
                 RawImage rawImage = cellObject.GetComponent<RawImage>();

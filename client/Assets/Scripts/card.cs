@@ -55,19 +55,19 @@ public class card : MonoBehaviour
                     };
                     var x = transform.localPosition.x;
                     float wid = transform.GetComponent<RectTransform>().rect.width;
-                    transform.DOLocalMoveX(x + wid / 2, 1.0f).onComplete = () =>
-                    {
-                        var p = transform.localPosition;
-                        p.x = x + wid / 2;
-                        transform.localPosition = p;
+                    //transform.DOLocalMoveX(x + wid / 2, 1.0f).onComplete = () =>
+                    //{
+                    //    var p = transform.localPosition;
+                    //    p.x = x + wid / 2;
+                    //    transform.localPosition = p;
 
-                        transform.DOLocalMoveX(x, 1.0f).onComplete = () =>
-                        {
-                            var p = transform.localPosition;
-                            p.x = x;
-                            transform.localPosition = p;
-                        };
-                    };
+                    //    transform.DOLocalMoveX(x, 1.0f).onComplete = () =>
+                    //    {
+                    //        var p = transform.localPosition;
+                    //        p.x = x;
+                    //        transform.localPosition = p;
+                    //    };
+                    //};
                     PlayerData.gd.Open(levelid);
                 }); 
             }
