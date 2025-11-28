@@ -528,6 +528,11 @@ public class picmgr : MonoBehaviour
                 t.DOAnchorPos(new Vector2(currentPos.x, currentPos.y + 100f), 0.5f).onComplete=() =>
                 {
                     // 显示胜利界面
+                    for(int i = 0;i< transform.childCount; i++)
+                    {
+                        var x= transform.GetChild(i);
+                        x.GetComponent<DraggableGridItem>().enabled=false;
+                    }
                     Main.DispEvent("show_next");
                 };
             }

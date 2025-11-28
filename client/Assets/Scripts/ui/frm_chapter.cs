@@ -28,15 +28,33 @@ public class frm_chapter : frmbase
         });
         btn.onClick.AddListener(() =>
         {
-            Main.DispEvent("level_play",PlayerData.gd.levelid);
-            hide(); 
+            if (!isTurning())
+            {
+                Main.DispEvent("level_play", PlayerData.gd.levelid);
+                hide();
+            }
         });
         btnsetup.onClick.AddListener(() =>
         {
             Main.DispEvent("show_setup",null);
         });
     }
-    
+
+    private bool isTurning()
+    {
+        bool ret = false;
+        for(int i=0;i< chaptercontent.childCount; i++)
+        {
+            var c = chaptercontent.GetChild(i);
+            if (c.GetComponent<card>().isTurning)
+            {
+                ret = true;
+                break;
+            }
+        }
+        return ret;
+    }
+
     private void Update()
     {
         // 检测屏幕尺寸变化，自动调整chaptercontent大小
