@@ -1,0 +1,5 @@
+<!-- table文档地址: https://luban.doc.code-philosophy.com/docs/manual/schema#table -->
+<module name=""> 
+	<table name="TbChapter" value="DrChapter" input="Chapter@jig-g-关卡.xlsx" readSchemaFromFile="true" /> 
+	<table name="TbLevel" value="DrLevel" input="Level@jig-g-关卡.xlsx" readSchemaFromFile="true" /> 
+</module>

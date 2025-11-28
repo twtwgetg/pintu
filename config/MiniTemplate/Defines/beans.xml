@@ -1,0 +1,16 @@
+<!-- table文档地址: https://luban.doc.code-philosophy.com/docs/manual/schema#table -->
+<module name="beans">
+	<!-- 公共区域 -->
+	<!-- 道具 -->
+	<bean name="Item">
+		<var name="itemId" type="int" comment="道具Id"/>
+		<var name="itemNum" type="int" comment="道具数量"/>
+	</bean>
+ 
+
+	<!-- 示例：如果数组元素是复杂对象，才需要定义bean -->
+	<bean name="IdValue">
+		<var name="id" type="int" comment="ID"/>
+		<var name="value" type="int" comment="值"/>
+	</bean>
+</module>
