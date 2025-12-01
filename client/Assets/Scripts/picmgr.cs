@@ -70,7 +70,8 @@ public class picmgr : MonoBehaviour
         width = leevel.LevelFigureX;
         height = leevel.LevelFigureY;
         pic = Resources.Load(leevel.LevelFigure) as Texture2D;
-        yield return Main.inst.StartCoroutine( CreateGridImages()); 
+        // 传递关卡ID、最大原位数量和难度参数
+        yield return Main.inst.StartCoroutine( CreateGridImages(leevel.Id, leevel.OutOfPlaceNumber, leevel.DifficultyTier == 2)); 
     } 
     // Start is called before the first frame update
     void Start()
@@ -85,10 +86,14 @@ public class picmgr : MonoBehaviour
     }
     public void tCreateGridImages()
     {
-        StartCoroutine(CreateGridImages());
+        // 编辑器测试方法，使用默认参数
+        StartCoroutine(CreateGridImages(1, -1, false));
     }
     // 添加的方法：根据当前recttransform尺寸拆分成width*height个格子，每个格子填充一个RawImage
-    public IEnumerator CreateGridImages()
+    // level: 关卡编号，用于确保每个关卡每次刷新出的位置是相同的
+    // maxKeepCount: 最多留在原位的卡牌数量，-1表示使用默认值
+    // isHard: 是否为困难模式
+    public IEnumerator CreateGridImages(int level = 1, int maxKeepCount = -1, bool isHard = false)
     {
         // 清除现有的子对象（使用倒序删除避免遍历时修改集合的问题）
         for (int i = transform.childCount - 1; i >= 0; i--)
@@ -170,7 +175,7 @@ public class picmgr : MonoBehaviour
             }
         }
         yield return new WaitForSeconds(0.3f);
-        ShuffleGridPositions(); 
+        ShuffleGridPositions(level, maxKeepCount, isHard); 
         for (int i = 0; i < transform.childCount; i++)
         {
             var x = transform.GetChild(i);
@@ -576,7 +581,10 @@ public class picmgr : MonoBehaviour
     }
     
     // 新增方法：打乱网格位置
-    public void ShuffleGridPositions()
+    // level: 关卡编号，用于确保每个关卡每次刷新出的位置是相同的
+    // maxKeepCount: 最多留在原位的卡牌数量，-1表示使用默认值
+    // isHard: 是否为困难模式
+    public void ShuffleGridPositions(int level = 1, int maxKeepCount = -1, bool isHard = false)
     {
         // 收集所有子对象
         List<RectTransform> children = new List<RectTransform>();
@@ -599,26 +607,92 @@ public class picmgr : MonoBehaviour
         Vector2 cellSize = children[0].sizeDelta;
         
         // 创建位置列表
-        List<Vector2> positions = new List<Vector2>();
+        List<Vector2> originalPositions = new List<Vector2>();
         for (int i = 0; i < children.Count; i++)
         {
-            positions.Add(children[i].anchoredPosition);
+            originalPositions.Add(children[i].anchoredPosition);
         }
         
-        // 使用Fisher-Yates算法打乱位置
-        for (int i = positions.Count - 1; i > 0; i--)
-        {
-            int j = Random.Range(0, i + 1);
-            // 交换位置
-            Vector2 temp = positions[i];
-            positions[i] = positions[j];
-            positions[j] = temp;
-        }
-        
-        // 应用打乱后的位置
+        // 创建可用位置列表（初始为所有位置）
+        List<int> availableIndices = new List<int>();
         for (int i = 0; i < children.Count; i++)
         {
-            children[i].anchoredPosition = positions[i];
+            availableIndices.Add(i);
+        }
+        
+        // 计算网格的宽高
+        int gridWidth = width;
+        int gridHeight = height;
+        
+        // 计算默认maxKeepCount：总卡牌数的30%
+        if (maxKeepCount == -1)
+        {
+            maxKeepCount = Mathf.Max(0, Mathf.RoundToInt(children.Count * 0.3f));
+        }
+        // 确保maxKeepCount在有效范围内
+        maxKeepCount = Mathf.Clamp(maxKeepCount, 0, children.Count - 1);
+        
+        // 随机选择要保留在原位的卡牌数量（0到maxKeepCount之间）
+        // 使用关卡编号和难度作为随机种子，确保每次结果一致
+        int seed = level * 1000 + (isHard ? 1 : 0);
+        System.Random rng = new System.Random(seed);
+        int cardsToKeep = rng.Next(0, maxKeepCount + 1);
+        
+        // 随机选择要保留在原位的卡牌索引
+        List<int> keepIndices = new List<int>();
+        List<int> allIndices = new List<int>();
+        for (int i = 0; i < children.Count; i++)
+        {
+            allIndices.Add(i);
+        }
+        
+        // 打乱allIndices列表，使用固定种子确保结果一致
+        System.Random shuffleRng = new System.Random(seed + 1);
+        for (int i = allIndices.Count - 1; i > 0; i--)
+        {
+            int j = shuffleRng.Next(0, i + 1);
+            int temp = allIndices[i];
+            allIndices[i] = allIndices[j];
+            allIndices[j] = temp;
+        }
+        
+        // 选择前cardsToKeep个索引作为要保留的卡牌
+        for (int i = 0; i < cardsToKeep; i++)
+        {
+            keepIndices.Add(allIndices[i]);
+            // 从可用位置列表中移除这些索引，它们将保持原位
+            availableIndices.Remove(allIndices[i]);
+        }
+        
+        // 为剩余的卡牌分配新位置
+        List<int> targetIndices = new List<int>(availableIndices);
+        
+        // 打乱targetIndices列表，使用固定种子确保结果一致
+        System.Random targetRng = new System.Random(seed + 2);
+        for (int i = targetIndices.Count - 1; i > 0; i--)
+        {
+            int j = targetRng.Next(0, i + 1);
+            int temp = targetIndices[i];
+            targetIndices[i] = targetIndices[j];
+            targetIndices[j] = temp;
+        }
+        
+        // 应用位置变化
+        for (int i = 0; i < children.Count; i++)
+        {
+            if (keepIndices.Contains(i))
+            {
+                // 保持原位
+                continue;
+            }
+            
+            // 找到当前索引在availableIndices中的位置
+            int indexInAvailable = availableIndices.IndexOf(i);
+            if (indexInAvailable >= 0 && indexInAvailable < targetIndices.Count)
+            {
+                int targetIndex = targetIndices[indexInAvailable];
+                children[i].anchoredPosition = originalPositions[targetIndex];
+            }
         }
         
         // 更新边框显示状态
