@@ -87,14 +87,14 @@ public class BorderSpriteLoader : MonoBehaviour
         }
     }
 
-    internal void RefreshBasedOnFlags(string prop, bool isTopCorrect, bool isLeftCorrect, bool isRightCorrect, bool isBottomCorrect, bool isTopLeftCorrect)
+     internal void RefreshBasedOnFlags(string prop, bool isTopCorrect, bool isLeftCorrect, bool isRightCorrect, bool isBottomCorrect,bool isConnerCorrect)
     {
         // 只处理四个角的逻辑，假定 resourceName 已经是角的类型（lt, rt, rb, lb）
         string key = resourceName;
         switch (prop)
         {
             case "lt": // 左上角
-                if (isLeftCorrect && isTopCorrect)
+                if (isLeftCorrect && isTopCorrect && !isConnerCorrect)
                     key = "lt_revert";
                 else if (!isLeftCorrect && !isTopCorrect)
                     key = "lt";
@@ -102,9 +102,11 @@ public class BorderSpriteLoader : MonoBehaviour
                     key = "t";
                 else if (!isLeftCorrect && isTopCorrect)
                     key = "l";
+                else
+                    Debug.LogError("lt未处理的情况: ");
                 break;
             case "rt": // 右上角
-                if (isRightCorrect && isTopCorrect)
+                if (isRightCorrect && isTopCorrect && !isConnerCorrect)
                     key = "rt_revert";
                 else if (!isRightCorrect && !isTopCorrect)
                     key = "rt";
@@ -112,9 +114,12 @@ public class BorderSpriteLoader : MonoBehaviour
                     key = "t";
                 else if (!isRightCorrect && isTopCorrect)
                     key = "r";
+                else
+                    Debug.LogError("rt未处理的情况: ");
                 break;
             case "rb": // 右下角
-                if (isRightCorrect && isBottomCorrect)
+                // 修改：添加对右下方对角线邻居的判断
+                if (isRightCorrect && isBottomCorrect && !isConnerCorrect)
                     key = "rb_revert";
                 else if (!isRightCorrect && !isBottomCorrect)
                     key = "rb";
@@ -122,9 +127,11 @@ public class BorderSpriteLoader : MonoBehaviour
                     key = "b";
                 else if (!isRightCorrect && isBottomCorrect)
                     key = "r";
+                else
+                    Debug.LogError("rb未处理的情况: ");
                 break;
             case "lb": // 左下角
-                if (isLeftCorrect && isBottomCorrect)
+                if (isLeftCorrect && isBottomCorrect && !isConnerCorrect)
                     key = "lb_revert";
                 else if (!isLeftCorrect && !isBottomCorrect)
                     key = "lb";
@@ -132,6 +139,11 @@ public class BorderSpriteLoader : MonoBehaviour
                     key = "b";
                 else if (!isLeftCorrect && isBottomCorrect)
                     key = "l";
+                else
+                    Debug.LogError("lb未处理的情况: ");
+                break;
+            default:
+                Debug.LogError("Invalid property: " + prop);
                 break;
         }
         SetResourceAndLoad(key);
