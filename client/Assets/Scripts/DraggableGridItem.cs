@@ -175,38 +175,49 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
         return true;
     }
 
-    public void Turn()
+    public void Turn(bool atonce=false)
     {
-        transform.DOScaleX(0, 0.25f).onComplete = () =>
+        if (atonce)
+        { 
+            settex();  
+        }
+        else
         {
-            transform.localScale = new Vector3(0, 1, 1);
-            settex();
-            transform.DOScaleX(1, 0.25f).onComplete = () =>
+
+            transform.DOScaleX(0, 0.25f).onComplete = () =>
             {
-                transform.localScale = new Vector3(1, 1, 1);
+                transform.localScale = new Vector3(0, 1, 1);
+                settex();
+                transform.DOScaleX(1, 0.25f).onComplete = () =>
+                {
+                    transform.localScale = new Vector3(1, 1, 1);
+                };
             };
-        };
 
 
-        var x = transform.localPosition.x;
-        float wid = transform.GetComponent<RectTransform>().rect.width;
-        transform.DOLocalMoveX(x + wid / 2, 0.25f).onComplete = () =>
-        {
-            var p = transform.localPosition;
-            p.x = x + wid / 2;
-            transform.localPosition = p;
-
-            transform.DOLocalMoveX(x, 0.25f).onComplete = () =>
+            var x = transform.localPosition.x;
+            float wid = transform.GetComponent<RectTransform>().rect.width;
+            transform.DOLocalMoveX(x + wid / 2, 0.25f).onComplete = () =>
             {
                 var p = transform.localPosition;
-                p.x = x;
+                p.x = x + wid / 2;
                 transform.localPosition = p;
+
+                transform.DOLocalMoveX(x, 0.25f).onComplete = () =>
+                {
+                    var p = transform.localPosition;
+                    p.x = x;
+                    transform.localPosition = p;
+                };
             };
-        };
+
+        }
+       
     }
 
     internal void settex()
     {
+        rawImage.color = Color.white;
         rawImage.uvRect = new Rect(uvX, uvY, uvWidth, uvHeight);
         rawImage.texture = pic;
     }

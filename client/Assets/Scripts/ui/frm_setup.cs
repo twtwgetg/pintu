@@ -10,13 +10,13 @@ public class frm_setup : frmbase
 {
     public Button btnInitialize;
     public Button btnClose;
-    
+    public Button btn_buytili;
     private void Awake()
     {
         // 注册按钮点击事件
         btnInitialize.onClick.AddListener(OnInitializeClick);
         btnClose.onClick.AddListener(OnCloseClick);
-        
+        btn_buytili.onClick.AddListener(OnBuyTiliClick);
         // 监听显示事件
         Main.RegistEvent("show_setup", (x) =>
         {
@@ -24,7 +24,12 @@ public class frm_setup : frmbase
             return 1;
         });
     }
-    
+
+    private void OnBuyTiliClick()
+    {
+        PlayerData.gd.power += 100;
+    }
+
     /// <summary>
     /// 关闭设置界面
     /// </summary>

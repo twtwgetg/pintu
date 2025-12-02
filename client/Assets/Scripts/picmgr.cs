@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using System;
+using TMPro;
+
 public class picmgr : MonoBehaviour
 {
     public Texture2D pic;
@@ -70,6 +73,11 @@ public class picmgr : MonoBehaviour
         width = leevel.LevelFigureX;
         height = leevel.LevelFigureY;
         pic = Resources.Load(leevel.LevelFigure) as Texture2D;
+        if(leevel.DifficultyTier==2)
+        {
+            Main.DispEvent("event_tips", "困难模式");
+        }
+
         // 传递关卡ID、最大原位数量和难度参数
         yield return Main.inst.StartCoroutine( CreateGridImages(leevel.Id, leevel.OutOfPlaceNumber, leevel.DifficultyTier == 2)); 
     } 
@@ -84,10 +92,28 @@ public class picmgr : MonoBehaviour
     {
         
     }
-    public void tCreateGridImages()
+    public void tCreateGridImages(int level = 1, int maxKeepCount = -1, bool isHard = false)
     {
         // 编辑器测试方法，使用默认参数
-        StartCoroutine(CreateGridImages(1, -1, false));
+        //StartCoroutine(CreateGridImages(1, -1, false));
+        clearOld();
+        RectTransform rectTransform = GetComponent<RectTransform>();
+        Vector2 rectSize = rectTransform.rect.size;
+
+        // 计算每个格子的尺寸
+        float cellWidth = rectSize.x / width;
+        float cellHeight = rectSize.y / height;
+        float time_fp = 1f;
+        float delay = time_fp / (width * height);
+        // 创建width*height个格子
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            { 
+                create(x, y, cellWidth, cellHeight,isHard,true);
+            }
+        } 
+        ShuffleGridPositions(level, maxKeepCount, isHard);
     }
     // 添加的方法：根据当前recttransform尺寸拆分成width*height个格子，每个格子填充一个RawImage
     // level: 关卡编号，用于确保每个关卡每次刷新出的位置是相同的
@@ -95,24 +121,7 @@ public class picmgr : MonoBehaviour
     // isHard: 是否为困难模式
     public IEnumerator CreateGridImages(int level = 1, int maxKeepCount = -1, bool isHard = false)
     {
-        // 清除现有的子对象（使用倒序删除避免遍历时修改集合的问题）
-        for (int i = transform.childCount - 1; i >= 0; i--)
-        {
-            Transform child = transform.GetChild(i);
-            // 在编辑器中使用DestroyImmediate，在运行时使用Destroy
-            #if UNITY_EDITOR
-            if (Application.isPlaying)
-            {
-                Destroy(child.gameObject);
-            }
-            else
-            {
-                DestroyImmediate(child.gameObject);
-            }
-            #else
-            Destroy(child.gameObject);
-            #endif
-        }
+        clearOld();
 
         RectTransform rectTransform = GetComponent<RectTransform>();
         Vector2 rectSize = rectTransform.rect.size;
@@ -128,50 +137,7 @@ public class picmgr : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 yield return new WaitForSeconds(delay);
-                // 创建一个空的游戏对象
-                GameObject cellObject = GameObject.Instantiate(Resources.Load("GridCell") as GameObject);
-                cellObject.name = $"GridCell_{x}_{y}";
-                cellObject.transform.SetParent(transform, false);
-
-                // 添加RectTransform组件
-                RectTransform cellRect = cellObject.GetComponent<RectTransform>();
-                
-                // 设置位置和尺寸
-                cellRect.anchorMin = new Vector2(0, 0);
-                cellRect.anchorMax = new Vector2(0, 0);
-                cellRect.pivot = new Vector2(0, 0);
-                cellRect.anchoredPosition = new Vector2(0f, 0);//
-                                                              //new Vector2(x * cellWidth, y * cellHeight);
-
-
-                cellRect.sizeDelta = new Vector2(cellWidth, cellHeight);
-
-
-                // 计算并设置UV坐标
-                float uvX = (float)x / width;
-                float uvY = (float)y / height;
-                float uvWidth = 1.0f / width;
-                float uvHeight = 1.0f / height;
-
-                
-                // 添加拖拽组件
-                var dg = cellObject.GetComponent<DraggableGridItem>();
-                dg.canvas = GetComponentInParent<Canvas>();
-                dg.pic = pic;
-                dg.uvX = uvX;
-                dg.uvY = uvY;
-                dg.uvWidth = uvWidth;
-                dg.uvHeight = uvHeight;
-
-                
-                // 创建边框
-                CreateBorders(cellObject, cellWidth, cellHeight);
-                var pos = new Vector2(x * cellWidth, y * cellHeight);
-                cellRect.DOAnchorPos(pos, 0.2f).onComplete=()=>
-                {
-                    cellRect.anchoredPosition = pos;
-                };
-
+                create(x, y,cellWidth,cellHeight,isHard,false);
             }
         }
         yield return new WaitForSeconds(0.3f);
@@ -184,13 +150,162 @@ public class picmgr : MonoBehaviour
         }
      
     }
-    
+
+    private void clearOld()
+    {
+        // 清除现有的子对象（使用倒序删除避免遍历时修改集合的问题）
+        for (int i = transform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = transform.GetChild(i);
+            // 在编辑器中使用DestroyImmediate，在运行时使用Destroy
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+            {
+                Destroy(child.gameObject);
+            }
+            else
+            {
+                DestroyImmediate(child.gameObject);
+            }
+#else
+            Destroy(child.gameObject);
+#endif
+        }
+    }
+
+    private void create(int x, int y, float cellWidth, float cellHeight, bool isHard, bool beditor)
+    {
+        // 创建一个空的游戏对象
+        GameObject cellObject = GameObject.Instantiate(Resources.Load("GridCell") as GameObject);
+        cellObject.name = $"GridCell_{x}_{y}";
+        cellObject.transform.SetParent(transform, false);
+
+        // 添加RectTransform组件
+        RectTransform cellRect = cellObject.GetComponent<RectTransform>();
+
+        if (isHard)
+        {
+            cellObject.GetComponent<RawImage>().color = Color.red;
+        }
+        else
+        {
+            cellObject.GetComponent<RawImage>().color = Color.white;
+        }
+        // 添加拖拽组件
+        var dg = cellObject.GetComponent<DraggableGridItem>();
+        dg.pic = pic;
+
+        // 计算并设置UV坐标
+        float uvX = (float)x / width;
+        float uvY = (float)y / height;
+        float uvWidth = 1.0f / width;
+        float uvHeight = 1.0f / height;
+
+
+        dg.canvas = GetComponentInParent<Canvas>();
+
+        dg.uvX = uvX;
+        dg.uvY = uvY;
+        dg.uvWidth = uvWidth;
+        dg.uvHeight = uvHeight;
+        // 设置位置和尺寸
+        cellRect.anchorMin = new Vector2(0, 0);
+        cellRect.anchorMax = new Vector2(0, 0);
+        cellRect.pivot = new Vector2(0, 0);
+        if (beditor)
+        {
+            cellRect.anchoredPosition = new Vector2(x * cellWidth, y * cellHeight);
+            cellRect.GetComponent<DraggableGridItem>().Turn(true);
+            
+
+        }
+        else
+        {
+            cellRect.anchoredPosition = new Vector2(0f, 0);
+            
+            // 非编辑器模式下，移除文本组件
+            TextMeshProUGUI existingText = cellObject.GetComponentInChildren<TextMeshProUGUI>();
+            if (existingText != null)
+            {
+                if (Application.isPlaying)
+                {
+                    GameObject.Destroy(existingText.gameObject);
+                }
+                else
+                {
+                    GameObject.DestroyImmediate(existingText.gameObject);
+                }
+            }
+        }
+        cellRect.sizeDelta = new Vector2(cellWidth, cellHeight);
+
+        // 创建边框
+        CreateBorders(cellObject, cellWidth, cellHeight);
+
+        if (beditor)
+        {
+            // 编辑器模式下，添加文本显示原始位置
+            TextMeshProUGUI originalPosText = cellObject.GetComponentInChildren<TextMeshProUGUI>();
+            if (originalPosText == null)
+            {
+                // 创建TextMeshProUGUI组件
+                GameObject textObject = new GameObject("OriginalPositionText");
+                textObject.transform.SetParent(cellObject.transform, false);
+                originalPosText = textObject.AddComponent<TextMeshProUGUI>();
+
+                // 设置文本组件的属性
+                RectTransform textRect = textObject.GetComponent<RectTransform>();
+                textRect.anchorMin = new Vector2(0.5f, 0.5f);
+                textRect.anchorMax = new Vector2(0.5f, 0.5f);
+                textRect.pivot = new Vector2(0.5f, 0.5f);
+                textRect.anchoredPosition = Vector2.zero;
+                textRect.sizeDelta = new Vector2(cellWidth, cellHeight);
+
+                // 设置文本样式
+                originalPosText.text = $"({x}, {y})";
+                originalPosText.fontSize = 24;
+                originalPosText.alignment = TextAlignmentOptions.Center;
+                originalPosText.color = Color.red;
+                originalPosText.fontStyle = FontStyles.Bold;
+                originalPosText.outlineWidth = 0.2f;
+                originalPosText.outlineColor = Color.black;
+
+                // 设置文本层级，确保显示在卡牌上方
+                Canvas canvas = cellObject.GetComponentInParent<Canvas>();
+                if (canvas != null)
+                {
+                    textObject.layer = canvas.gameObject.layer;
+                }
+            }
+            else
+            {
+                // 如果已经存在文本组件，更新文本内容
+                originalPosText.text = $"({x}, {y})";
+            } 
+        }
+       
+
+        var pos = new Vector2(x * cellWidth, y * cellHeight);
+        cellRect.DOAnchorPos(pos, 0.2f).onComplete = () =>
+        {
+            cellRect.anchoredPosition = pos;
+        };
+
+    }
+
     // 创建边框
     private void CreateBorders(GameObject cellObject, float cellWidth, float cellHeight)
     {
         for(int i = cellObject.transform.childCount - 1; i >= 0; i--)
         {
-            GameObject.Destroy( cellObject.transform.GetChild(i).gameObject);
+            if (Application.isPlaying)
+            {
+                GameObject.Destroy(cellObject.transform.GetChild(i).gameObject);
+            }
+            else
+            {
+                GameObject.DestroyImmediate(cellObject.transform.GetChild(i).gameObject);
+            }
         }
         
         // 边框宽度（用于边以及角的边长）

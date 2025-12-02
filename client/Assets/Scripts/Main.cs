@@ -183,6 +183,17 @@ public class Main : MonoBehaviour
     public static void RestartLevel()
     {
         Debug.Log("重新开始关卡");
+        
+        // 检查并消耗power
+        if (!PlayerData.gd.hasEnoughpower(10))
+        {
+            Debug.Log("power不足，无法重新开始游戏");
+            // 可以在这里添加power不足的提示
+            return;
+        }
+        
+        // 消耗10点power
+        PlayerData.gd.消耗power(10);
       
     }
     

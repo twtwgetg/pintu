@@ -17,6 +17,17 @@ public class frmbaseeditor : Editor
         {
             frm.hide();
         }
+        
+        // 检测是否存在gb节点
+        Transform gbTransform = frm.transform.Find("gb");
+        if (gbTransform == null)
+        {
+            // 如果没有gb节点，显示初始化按钮
+            if (GUILayout.Button("初始化 - 添加gb节点"))
+            {
+                InitializeGBNode();
+            }
+        }
         //if (GUILayout.Button("addString"))
         //{
         //    var sx = frm.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true);
@@ -42,6 +53,29 @@ public class frmbaseeditor : Editor
         //    frm.loadString();
         //}
     }
+    
+    /// <summary>
+    /// 初始化gb节点
+    /// </summary>
+    private void InitializeGBNode()
+    {
+        // 创建gb节点
+        GameObject gbObj = new GameObject("gb");
+        gbObj.transform.SetParent(frm.transform, false);
+        
+        // 添加RectTransform组件
+        RectTransform rectTransform = gbObj.AddComponent<RectTransform>();
+        
+        // 设置全屏参数
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.one;
+        rectTransform.offsetMin = Vector2.zero;
+        rectTransform.offsetMax = Vector2.zero;
+        rectTransform.localScale = Vector3.one;
+        
+        Debug.Log("已创建gb节点并设置为全屏");
+    }
+    
     frmbase frm
     {
         get

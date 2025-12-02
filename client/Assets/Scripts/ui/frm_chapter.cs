@@ -11,13 +11,23 @@ public class frm_chapter : frmbase
     public RectTransform chaptercontent;
     public Button btn;
     public Button btnsetup;
+    public TextMeshProUGUI staminaText; // power显示文本组件
+    public Image fillimg;
     private void Awake()
     {
         Main.RegistEvent("gamebegin", (x) =>
         {
             brushChapterContent();
             show();
+            UpdateStaminaDisplay();
             return 1;
+        });
+        
+        // 注册power变化事件
+        Main.RegistEvent("onpowerChange", (x) =>
+        {
+            UpdateStaminaDisplay();
+            return null;
         });
         Main.RegistEvent("level_next", (x) =>
         {
@@ -30,8 +40,11 @@ public class frm_chapter : frmbase
         {
             if (!isTurning())
             {
-                Main.DispEvent("level_play", PlayerData.gd.levelid);
-                hide();
+                int ret =(int)Main.DispEvent("level_play", PlayerData.gd.levelid);
+                if (ret==1)
+                {
+                    hide();
+                }
             }
         });
         btnsetup.onClick.AddListener(() =>
@@ -293,5 +306,16 @@ public class frm_chapter : frmbase
     {
         Transform child = parent.transform.Find(name);
         return child != null ? child.gameObject : null;
+    }
+    
+    // 更新power显示
+    private void UpdateStaminaDisplay()
+    {
+        if (staminaText != null)
+        {
+            staminaText.text = $"{PlayerData.gd.power}/100";
+            float v = (float)PlayerData.gd.power / 100f;
+            fillimg.fillAmount = v;
+        }
     }
 }

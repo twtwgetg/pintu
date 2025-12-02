@@ -53,6 +53,71 @@ public class GameData
             Main.DispEvent("onLevelChange");
         }
     }
+    
+    // power相关字段和方法
+    internal int power
+    {
+        get
+        {
+            int currentpower = int.Parse(data.Has("power") ? data["power"].ToString() : "100");
+            int maxpower = 100;
+            
+            // 计算自动恢复的power
+            long lastUpdateTime = lastpowerUpdateTime;
+            long now = DateTime.Now.Ticks / TimeSpan.TicksPerSecond;
+            long elapsedSeconds = now - lastUpdateTime;
+            
+            int recoveredpower = (int)(elapsedSeconds / (15 * 60)); // 每15分钟恢复1点power
+            if (recoveredpower > 0)
+            {
+                currentpower = Math.Min(maxpower, currentpower + recoveredpower);
+                data["power"] = Math.Min(100, currentpower).ToString();
+                lastpowerUpdateTime = now;
+            }
+            
+            return currentpower;
+        }
+        set
+        {
+            data["power"] = Math.Min(100, value).ToString();
+            lastpowerUpdateTime = DateTime.Now.Ticks / TimeSpan.TicksPerSecond;
+            Main.DispEvent("onpowerChange");
+        }
+    }
+    
+    internal long lastpowerUpdateTime
+    {
+        get
+        {
+            if(data.Has("lastpowerUpdateTime"))
+            {
+                return long.Parse(data["lastpowerUpdateTime"].ToString());
+            }
+            return DateTime.Now.Ticks / TimeSpan.TicksPerSecond;
+        }
+        set
+        {
+            data["lastpowerUpdateTime"] = value.ToString();
+        }
+    }
+    
+    // 检查是否有足够的power
+    public bool hasEnoughpower(int cost = 10)
+    {
+        return power >= cost;
+    }
+    
+    // 消耗power
+    public bool 消耗power(int cost = 10)
+    {
+        if(hasEnoughpower(cost))
+        {
+            power -= cost;
+            return true;
+        }
+        return false;
+    }
+    
     opend op;
 
     JsonData data;
@@ -106,6 +171,11 @@ public class PlayerData : MonoBehaviour
         {
             saveData();
             return 1;
+        });
+        Main.RegistEvent("onpowerChange", (x) =>
+        {
+            saveData();
+            return null;
         });
     }
    
