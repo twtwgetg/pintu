@@ -10,8 +10,11 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     private RectTransform rectTransform;
     public Canvas canvas;
     private Vector2 originalPosition;
+    private int originalPositionIndex; // 记录原始位置索引
     public static Vector2 targetPosition; // 拖拽时靠近的目标位置
     public int originalSiblingIndex { get; private set; } // 原始的层级索引，公开供其他脚本访问
+    public static bool isAnyItemDragging = false; // 静态变量，标记是否有任何卡牌正在被拖拽
+    public int PositionIndex { get; set; } // 当前卡牌的位置索引
     // 在 Inspector 中显示的邻居合法状态（true 表示在对应方向存在邻居/相邻）
     public bool adjacentLeft = false;
     public bool adjacentRight = false;
@@ -40,13 +43,30 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
+        
+        // 初始化时计算位置索引
+        PositionIndex = GetIndexFromAnchoredPosition(rectTransform.anchoredPosition);
     }
     
     public void OnBeginDrag(PointerEventData eventData)
     {
+        // 如果已经有卡牌在拖拽，则直接返回，禁止同时拖拽多张卡牌
+        if (isAnyItemDragging)
+        {
+            return;
+        }
+        
+        // 设置静态拖拽状态为true
+        isAnyItemDragging = true;
+        
         // 记录原始位置和层级
         originalPosition = rectTransform.anchoredPosition;
-        targetPosition = rectTransform.anchoredPosition;
+        originalPositionIndex = PositionIndex;
+        
+        int x = Mathf.RoundToInt(rectTransform.anchoredPosition.x / carWid);
+        int y = Mathf.RoundToInt(rectTransform.anchoredPosition.y / carHei);
+        targetPosition = new Vector2(x * carWid, y * carHei);
+
         originalSiblingIndex = transform.GetSiblingIndex();
         
         // 收集和本格连接的邻居，一起移动
@@ -261,6 +281,9 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
         groupOriginalSiblingIndices = null;
         
         isDragging = false;
+        
+        // 拖拽结束，重置静态拖拽状态
+        isAnyItemDragging = false;
     }
     
     // 将所有拖拽的项重置到原始位置
@@ -275,6 +298,9 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
                 if (groupOriginalPositions.TryGetValue(it, out Vector2 orig))
                 {
                     seq.Join(it.rectTransform.DOAnchorPos(orig, 0.25f));
+                    // 重置位置索引
+                    int index = GetIndexFromAnchoredPosition(orig);
+                    it.PositionIndex = index;
                 }
             }
             seq.OnComplete(() => {
@@ -300,6 +326,8 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
             Tween tween = rectTransform.DOAnchorPos(originalPosition, 0.3f);
             tween.OnComplete(() => {
                 transform.SetSiblingIndex(originalSiblingIndex);
+                // 重置位置索引
+                PositionIndex = originalPositionIndex;
                 picmgr picManager = GetComponentInParent<picmgr>();
                 if (picManager != null)
                 {
@@ -339,6 +367,9 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     // 交换位置
     private void SwapPositions(Vector2 targetPos)
     {
+        // 更新当前卡牌的位置索引
+        int newIndex = GetIndexFromAnchoredPosition(targetPos);
+        PositionIndex = newIndex;
         // 准备拖拽组（源组）
         List<DraggableGridItem> dragGroupList = (dragGroup != null && dragGroup.Count > 0) ? new List<DraggableGridItem>(dragGroup) : new List<DraggableGridItem>() { this };
         
@@ -438,6 +469,9 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
             if (targetPositions.TryGetValue(item, out Vector2 vtargetPos))
             {
                 seq.Join(item.rectTransform.DOAnchorPos(vtargetPos, 0.25f));
+                // 更新位置索引
+                int vnewIndex = GetIndexFromAnchoredPosition(vtargetPos);
+                item.PositionIndex = vnewIndex;
             }
         }
         
@@ -448,6 +482,9 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
             Vector2 emptyPos = kvp.Value;
             
             seq.Join(coveredItem.rectTransform.DOAnchorPos(emptyPos, 0.25f));
+            // 更新位置索引
+            int vnewIndex = GetIndexFromAnchoredPosition(emptyPos);
+            coveredItem.PositionIndex = vnewIndex;
         }
         
         // 保存所有需要交换层级的项
@@ -520,6 +557,46 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
         });
     }
     
+    // 根据位置索引获取anchoredPosition
+    private Vector2 GetAnchoredPositionFromIndex(int index)
+    {
+        // 获取关卡的行数和列数
+        picmgr picManager = GetComponentInParent<picmgr>();
+        if (picManager == null) return Vector2.zero;
+        
+        int cols = picManager.width;
+        int rows = picManager.height;
+        
+        // 计算x和y坐标
+        int y = index / cols;
+        int x = index % cols;
+        
+        // 计算anchoredPosition
+        float xPos = x * carWid;
+        float yPos = y * carHei;
+        
+        return new Vector2(xPos, yPos);
+    }
+    
+    // 根据anchoredPosition获取位置索引
+    private int GetIndexFromAnchoredPosition(Vector2 position)
+    {
+        // 获取关卡的行数和列数
+        picmgr picManager = GetComponentInParent<picmgr>();
+        if (picManager == null) return 0;
+        
+        int cols = picManager.width;
+        
+        // 计算网格坐标
+        int x = Mathf.RoundToInt(position.x / carWid);
+        int y = Mathf.RoundToInt(position.y / carHei);
+        
+        // 计算位置索引：y * cols + x
+        return y * cols + x;
+    }
+    
+    // 按照从左到右、从上到下的规则对卡牌项进行排序
+ 
     // 根据位置找到对应的卡牌项
     private DraggableGridItem FindItemAtPosition(Vector2 targetPos)
     {
