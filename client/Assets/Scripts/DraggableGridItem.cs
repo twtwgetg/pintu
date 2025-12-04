@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using DG.Tweening; // 引入DOTween
 using System.Collections;
-
+using TMPro;
 public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     public RectTransform rectTransform
@@ -157,9 +157,23 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
         {
             int x = Mathf.RoundToInt(rectTransform.anchoredPosition.x / carWid);
             int y = Mathf.RoundToInt(rectTransform.anchoredPosition.y / carHei);
-//            targetPosition = new Vector2(x * carWid, y * carHei);
+
+            x =Mathf.Min(wid,  Mathf.Max(0, x));
+            y = Mathf.Min(hei, Mathf.Max(0, y));
             targetPositionIndex = x*hei + y;
         }
+        else
+        {
+            targetPositionIndex = PositionIndex;
+            
+        }
+        setText($"{PositionIndex} to {targetPositionIndex}");
+    }
+    void setText(string c)
+    {
+        var m = GetComponentInChildren<TextMeshProUGUI>();
+        if(m!=null)
+            m.text = c;
     }
  
     // 检查拖拽组是否在父对象边界内

@@ -9,7 +9,11 @@ public class DebugModeTools : EditorWindow
     [MenuItem("Tools/调试模式", false, 0)]
     private static void ToggleDebugMode()
     {
-        DebugManager.IsDebugMode = !DebugManager.IsDebugMode;
+        bool newState = !DebugManager.IsDebugMode;
+        DebugManager.IsDebugMode = newState;
+        
+        // 保存设置到EditorPrefs
+        EditorPrefs.SetBool("DebugModeEnabled", newState);
         
         // 显示调试信息
         Debug.Log("调试模式已" + (DebugManager.IsDebugMode ? "开启" : "关闭"));

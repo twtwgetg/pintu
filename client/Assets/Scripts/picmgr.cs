@@ -86,9 +86,10 @@ public class picmgr : MonoBehaviour
             return GetComponent<RectTransform>();
         }
     }
+    DrLevel curlevel;
     public IEnumerator  LoadLevel(DrLevel leevel)
     {
-       
+        curlevel = leevel;
         width = leevel.LevelFigureX;
         height = leevel.LevelFigureY;
         pic = Resources.Load(leevel.LevelFigure) as Texture2D;
@@ -300,7 +301,7 @@ public class picmgr : MonoBehaviour
             
             // 更新文本内容，显示网格坐标和位置索引
             var xdg = cellObject.GetComponent<DraggableGridItem>();
-            originalPosText.text = $"({x}, {y})\nIndex: {xdg.PositionIndex}";
+            originalPosText.text = "";// $"({x}, {y})\nIndex: {xdg.PositionIndex}";
         }
        
 
@@ -672,7 +673,8 @@ public class picmgr : MonoBehaviour
                         var x= transform.GetChild(i);
                         x.GetComponent<DraggableGridItem>().enabled=false;
                     }
-                    Main.DispEvent("show_next");
+                    
+                    Main.DispEvent("show_next", curlevel);
                 };
             }
         }
@@ -726,6 +728,11 @@ public class picmgr : MonoBehaviour
                 int x = Mathf.RoundToInt(item.rectTransform.anchoredPosition.x / carWid);
                 int y = Mathf.RoundToInt(item.rectTransform.anchoredPosition.y / carHei);
                 item.PositionIndex = x * this.height + y;
+                var originalPosText = item.GetComponentInChildren<TextMeshProUGUI>();
+                if(originalPosText != null)
+                {
+                    originalPosText.text = item.PositionIndex.ToString();
+                }
             }
         }
     }

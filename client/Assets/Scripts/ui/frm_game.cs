@@ -60,10 +60,10 @@ public class frm_game : frmbase
             StartCoroutine(load(leevel));
             return 1;
         });
-        Main.RegistEvent("show_next", (x) =>
+        Main.RegistEvent("level_next", (x) =>
         {
-            next.gameObject.SetActive(true);
-            return 1;
+            hide();
+            return null;
         });
         next.onClick.AddListener(() =>
         {
