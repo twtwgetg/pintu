@@ -134,7 +134,7 @@ public class frm_chapter : frmbase
         var pic = Resources.Load(chapter.ChapterFigure) as Texture;
         
         // 调整chaptercontent大小
-        ResizeChapterContent();
+        //ResizeChapterContent();
         
         // 清除现有的子对象（使用倒序删除避免遍历时修改集合的问题）
         for (int i = chaptercontent.childCount - 1; i >= 0; i--)

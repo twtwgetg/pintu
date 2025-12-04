@@ -19,7 +19,7 @@ public class frmbaseeditor : Editor
         }
         
         // 检测是否存在gb节点
-        Transform gbTransform = frm.transform.Find("gb");
+        Transform gbTransform = frm.transform.Find("Root");
         if (gbTransform == null)
         {
             // 如果没有gb节点，显示初始化按钮

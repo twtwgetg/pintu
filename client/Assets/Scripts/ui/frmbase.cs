@@ -28,7 +28,7 @@ public class frmbase : MonoBehaviour
     {
         get
         {
-            return transform.Find("gb");
+            return transform.Find("Root");
         }
     }
     public void show()
