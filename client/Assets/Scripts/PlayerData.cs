@@ -121,6 +121,23 @@ public class GameData
     opend op;
 
     JsonData data;
+    internal int currChapter
+    {
+        get
+        {
+            if (data.Has("currChapter"))
+            {
+                return int.Parse(data["currChapter"].ToString());
+            }
+            return 1;
+        }
+        set
+        {
+            data["currChapter"] = value.ToString();
+            Main.DispEvent("onChapterChange");
+        }
+    }
+
     public GameData(JsonData _data)
     {
         data = _data;
@@ -162,6 +179,22 @@ public class GameData
 }
 public class PlayerData : MonoBehaviour
 {
+    bool chapterOpend()
+    {
+        bool ret = true;
+        int cid = gd.currChapter;
+        var sst = datamgr.Instance.GetChapter(cid);
+        for (int i = 0; i < sst.LevelId.Count; i++)
+        {
+            var xt = sst.LevelId[i];
+            if (!gd.isOpened(xt))
+            {
+                ret = false;
+                break;
+            }
+        }
+        return ret;
+    }
     // Start is called before the first frame update
     public static GameData gd;
     private void Awake()
@@ -169,6 +202,11 @@ public class PlayerData : MonoBehaviour
         loadData();
         Main.RegistEvent("onLevelChange", (x) =>
         {
+            if (chapterOpend())
+            {
+                gd.currChapter++;
+            }
+
             saveData();
             return 1;
         });

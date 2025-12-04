@@ -4,6 +4,7 @@ using UnityEngine;
 using System.IO;
 using SimpleJSON;
 using cfg;
+using System;
 
 /// <summary>
 /// 数据管理器 - 用于加载和管理Luban配置表
@@ -156,6 +157,11 @@ public class datamgr : MonoBehaviour
     public DrChapter GetChapter(int id)
     {
         return Tables?.TbChapter?.GetOrDefault(id);
+    }
+
+    internal List<DrChapter> GetChapters()
+    {
+        return Tables?.TbChapter?.DataList;
     }
 
     /// <summary>

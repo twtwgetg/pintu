@@ -8,6 +8,9 @@ public class DraggableGridItemEditor : Editor
     {
         serializedObject.Update();
 
+        // 获取当前编辑的 DraggableGridItem 对象
+        DraggableGridItem item = (DraggableGridItem)target;
+
         SerializedProperty prop = serializedObject.GetIterator();
 
         // 绘制每个可见属性，但将 adjacency 字段以只读标签形式显示
@@ -36,6 +39,11 @@ public class DraggableGridItemEditor : Editor
                 EditorGUILayout.PropertyField(prop, true);
             }
         }
+
+        // 显式显示 PositionIndex 属性
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("Position Index", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("Current Position Index", item.PositionIndex.ToString());
 
         serializedObject.ApplyModifiedProperties();
     }

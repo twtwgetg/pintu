@@ -36,6 +36,12 @@ public class frm_chapter : frmbase
             show();
             return 1;
         });
+        Main.RegistEvent("onChapterChange", (x) =>
+        { 
+            brushChapterContent();
+            show();
+            return 1;
+        });
         btn.onClick.AddListener(() =>
         {
             if (!isTurning())
@@ -115,7 +121,7 @@ public class frm_chapter : frmbase
         //// 设置chaptercontent居中
         //chaptercontent.anchoredPosition = Vector2.zero;
     }
-    int currentChapter = 1; 
+   
     protected override void OnShow()
     {
         base.OnShow();
@@ -124,7 +130,7 @@ public class frm_chapter : frmbase
     
     private void brushChapterContent()
     {
-        var chapter = datamgr.Instance.GetChapter(currentChapter);
+        var chapter = datamgr.Instance.GetChapter(PlayerData.gd.currChapter);
         var pic = Resources.Load(chapter.ChapterFigure) as Texture;
         
         // 调整chaptercontent大小

@@ -7,6 +7,10 @@ using DG.Tweening;
 using System;
 using TMPro;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 public class picmgr : MonoBehaviour
 {
     public Texture2D pic;
@@ -14,6 +18,21 @@ public class picmgr : MonoBehaviour
     public int height=3;
 
     internal static picmgr instance;
+    internal float carWid
+    {
+        get
+        {
+            return trans.rect.width / width;
+        }
+    }
+    internal float carHei
+    {
+        get
+        {
+            return trans.rect.height / height;
+        }
+    }
+
     private void Awake()
     {
         instance = this;
@@ -82,16 +101,7 @@ public class picmgr : MonoBehaviour
         yield return Main.inst.StartCoroutine( CreateGridImages(leevel.Id, leevel.OutOfPlaceNumber, leevel.DifficultyTier == 2)); 
     } 
     // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+     
     public void tCreateGridImages(int level = 1, int maxKeepCount = -1, bool isHard = false)
     {
         // 编辑器测试方法，使用默认参数
@@ -194,7 +204,8 @@ public class picmgr : MonoBehaviour
         // 添加拖拽组件
         var dg = cellObject.GetComponent<DraggableGridItem>();
         dg.pic = pic;
-
+        // 初始化时计算位置索引
+        
         // 计算并设置UV坐标
         float uvX = (float)x / width;
         float uvY = (float)y / height;
@@ -208,6 +219,8 @@ public class picmgr : MonoBehaviour
         dg.uvY = uvY;
         dg.uvWidth = uvWidth;
         dg.uvHeight = uvHeight;
+
+        dg.PositionIndex = x * height + y;
         // 设置位置和尺寸
         cellRect.anchorMin = new Vector2(0, 0);
         cellRect.anchorMax = new Vector2(0, 0);
@@ -223,17 +236,22 @@ public class picmgr : MonoBehaviour
         {
             cellRect.anchoredPosition = new Vector2(0f, 0);
             
-            // 非编辑器模式下，移除文本组件
-            TextMeshProUGUI existingText = cellObject.GetComponentInChildren<TextMeshProUGUI>();
-            if (existingText != null)
+            // 非编辑器模式下，根据调试模式决定是否移除文本组件
+            bool isDebugMode = DebugManager.IsDebugMode;
+            
+            if (!isDebugMode)
             {
-                if (Application.isPlaying)
+                TextMeshProUGUI existingText = cellObject.GetComponentInChildren<TextMeshProUGUI>();
+                if (existingText != null)
                 {
-                    GameObject.Destroy(existingText.gameObject);
-                }
-                else
-                {
-                    GameObject.DestroyImmediate(existingText.gameObject);
+                    if (Application.isPlaying)
+                    {
+                        GameObject.Destroy(existingText.gameObject);
+                    }
+                    else
+                    {
+                        GameObject.DestroyImmediate(existingText.gameObject);
+                    }
                 }
             }
         }
@@ -242,14 +260,17 @@ public class picmgr : MonoBehaviour
         // 创建边框
         CreateBorders(cellObject, cellWidth, cellHeight);
 
-        if (beditor)
+        // 检查调试模式状态
+        bool isDebugModeForText = beditor || DebugManager.IsDebugMode;
+        
+        if (isDebugModeForText)
         {
-            // 编辑器模式下，添加文本显示原始位置
+            // 调试模式下，添加文本显示位置信息
             TextMeshProUGUI originalPosText = cellObject.GetComponentInChildren<TextMeshProUGUI>();
             if (originalPosText == null)
             {
                 // 创建TextMeshProUGUI组件
-                GameObject textObject = new GameObject("OriginalPositionText");
+                GameObject textObject = new GameObject("DebugText");
                 textObject.transform.SetParent(cellObject.transform, false);
                 originalPosText = textObject.AddComponent<TextMeshProUGUI>();
 
@@ -262,7 +283,6 @@ public class picmgr : MonoBehaviour
                 textRect.sizeDelta = new Vector2(cellWidth, cellHeight);
 
                 // 设置文本样式
-                originalPosText.text = $"({x}, {y})";
                 originalPosText.fontSize = 24;
                 originalPosText.alignment = TextAlignmentOptions.Center;
                 originalPosText.color = Color.red;
@@ -277,11 +297,10 @@ public class picmgr : MonoBehaviour
                     textObject.layer = canvas.gameObject.layer;
                 }
             }
-            else
-            {
-                // 如果已经存在文本组件，更新文本内容
-                originalPosText.text = $"({x}, {y})";
-            } 
+            
+            // 更新文本内容，显示网格坐标和位置索引
+            var xdg = cellObject.GetComponent<DraggableGridItem>();
+            originalPosText.text = $"({x}, {y})\nIndex: {xdg.PositionIndex}";
         }
        
 
@@ -521,43 +540,43 @@ public class picmgr : MonoBehaviour
             }
 
             // 额外规则：如果当前格子的左右都是正确邻居，则把左侧节点的右下角和右侧节点的左下角设为底部贴图("b")
-            if (isLeftCorrect && isRightCorrect)
-            {
-                if (leftNeighborItem != null)
-                {
-                    GameObject neighBR = FindChildByName(leftNeighborItem.gameObject, "BottomRightBorder");
-                    if (neighBR != null)
-                    {
-                        BorderSpriteLoader bl = neighBR.GetComponent<BorderSpriteLoader>();
-                        if (bl != null)
-                        {
-                            // 如果左侧邻居是网格角（任一角），跳过覆盖
-                            string[] lnParts = leftNeighborItem.gameObject.name.Replace("GridCell_", "").Split('_');
-                            int lnx = int.Parse(lnParts[0]);
-                            int lny = int.Parse(lnParts[1]);
-                            bool lnIsCorner = (lnx == 0 && lny == (height - 1)) || (lnx == (width - 1) && lny == (height - 1)) || (lnx == (width - 1) && lny == 0) || (lnx == 0 && lny == 0);
-                            if (!lnIsCorner) bl.SetResourceAndLoad("b");
-                        }
-                    }
-                }
-                if (rightNeighborItem != null)
-                {
-                    GameObject neighBL = FindChildByName(rightNeighborItem.gameObject, "BottomLeftBorder");
-                    if (neighBL != null)
-                    {
-                        BorderSpriteLoader bl = neighBL.GetComponent<BorderSpriteLoader>();
-                        if (bl != null)
-                        {
-                            // 如果右侧邻居是网格角（任一角），跳过覆盖
-                            string[] rnParts = rightNeighborItem.gameObject.name.Replace("GridCell_", "").Split('_');
-                            int rnx = int.Parse(rnParts[0]);
-                            int rny = int.Parse(rnParts[1]);
-                            bool rnIsCorner = (rnx == 0 && rny == (height - 1)) || (rnx == (width - 1) && rny == (height - 1)) || (rnx == (width - 1) && rny == 0) || (rnx == 0 && rny == 0);
-                            if (!rnIsCorner) bl.SetResourceAndLoad("b");
-                        }
-                    }
-                }
-            } 
+            //if (isLeftCorrect && isRightCorrect)
+            //{
+            //    if (leftNeighborItem != null)
+            //    {
+            //        GameObject neighBR = FindChildByName(leftNeighborItem.gameObject, "BottomRightBorder");
+            //        if (neighBR != null)
+            //        {
+            //            BorderSpriteLoader bl = neighBR.GetComponent<BorderSpriteLoader>();
+            //            if (bl != null)
+            //            {
+            //                // 如果左侧邻居是网格角（任一角），跳过覆盖
+            //                string[] lnParts = leftNeighborItem.gameObject.name.Replace("GridCell_", "").Split('_');
+            //                int lnx = int.Parse(lnParts[0]);
+            //                int lny = int.Parse(lnParts[1]);
+            //                bool lnIsCorner = (lnx == 0 && lny == (height - 1)) || (lnx == (width - 1) && lny == (height - 1)) || (lnx == (width - 1) && lny == 0) || (lnx == 0 && lny == 0);
+            //                if (!lnIsCorner) bl.SetResourceAndLoad("b");
+            //            }
+            //        }
+            //    }
+            //    if (rightNeighborItem != null)
+            //    {
+            //        GameObject neighBL = FindChildByName(rightNeighborItem.gameObject, "BottomLeftBorder");
+            //        if (neighBL != null)
+            //        {
+            //            BorderSpriteLoader bl = neighBL.GetComponent<BorderSpriteLoader>();
+            //            if (bl != null)
+            //            {
+            //                // 如果右侧邻居是网格角（任一角），跳过覆盖
+            //                string[] rnParts = rightNeighborItem.gameObject.name.Replace("GridCell_", "").Split('_');
+            //                int rnx = int.Parse(rnParts[0]);
+            //                int rny = int.Parse(rnParts[1]);
+            //                bool rnIsCorner = (rnx == 0 && rny == (height - 1)) || (rnx == (width - 1) && rny == (height - 1)) || (rnx == (width - 1) && rny == 0) || (rnx == 0 && rny == 0);
+            //                if (!rnIsCorner) bl.SetResourceAndLoad("b");
+            //            }
+            //        }
+            //    }
+            //} 
         }
     }
     /*
@@ -695,195 +714,213 @@ public class picmgr : MonoBehaviour
         return child != null ? child.gameObject : null;
     }
     
-// 新增方法：计算两点之间的曼哈顿距离（用于网格距离计算）
-private int CalculateManhattanDistance(int x1, int y1, int x2, int y2)
-{
-    return Mathf.Abs(x1 - x2) + Mathf.Abs(y1 - y2);
-}
-
-// 修改后的ShuffleGridPositions方法
-public void ShuffleGridPositions(int level = 1, int maxKeepCount = -1, bool isHard = false)
-{
-    // 收集所有子对象
-    List<RectTransform> children = new List<RectTransform>();
-    List<Vector2> originalPositions = new List<Vector2>();
-    List<Vector2Int> originalGridCoords = new List<Vector2Int>(); // 存储原始网格坐标
-    
-    foreach (Transform child in transform)
+    // 刷新所有卡牌的位置索引
+    public void RefreshAllPositionIndices()
     {
-        RectTransform rect = child.GetComponent<RectTransform>();
-        if (rect != null)
+        foreach (Transform child in transform)
         {
-            children.Add(rect);
-            originalPositions.Add(rect.anchoredPosition);
-            
-            // 解析原始网格坐标
-            string[] parts = child.name.Replace("GridCell_", "").Split('_');
-            if (parts.Length == 2)
+            DraggableGridItem item = child.GetComponent<DraggableGridItem>();
+            if (item != null)
             {
-                int x, y;
-                if (int.TryParse(parts[0], out x) && int.TryParse(parts[1], out y))
-                {
-                    originalGridCoords.Add(new Vector2Int(x, y));
-                    continue;
-                }
+                // 根据当前位置更新位置索引
+                int x = Mathf.RoundToInt(item.rectTransform.anchoredPosition.x / carWid);
+                int y = Mathf.RoundToInt(item.rectTransform.anchoredPosition.y / carHei);
+                item.PositionIndex = x * this.height + y;
             }
-            originalGridCoords.Add(new Vector2Int(-1, -1)); // 解析失败的情况
         }
     }
     
-    // 如果子对象数量不足2个，无法打乱
-    if (children.Count < 2)
+    // 新增方法：计算两点之间的曼哈顿距离（用于网格距离计算）
+    private int CalculateManhattanDistance(int x1, int y1, int x2, int y2)
     {
-        return;
+        return Mathf.Abs(x1 - x2) + Mathf.Abs(y1 - y2);
     }
-    
-    // 获取网格单元的尺寸（从第一个子对象获取）
-    Vector2 cellSize = children[0].sizeDelta;
-    
-    // 创建可用位置列表（初始为所有位置）
-    List<int> availableIndices = new List<int>();
-    for (int i = 0; i < children.Count; i++)
+
+    // 修改后的ShuffleGridPositions方法
+    public void ShuffleGridPositions(int level = 1, int maxKeepCount = -1, bool isHard = false)
     {
-        availableIndices.Add(i);
-    }
+            // 收集所有子对象
+            List<RectTransform> children = new List<RectTransform>();
+            List<Vector2> originalPositions = new List<Vector2>();
+            List<Vector2Int> originalGridCoords = new List<Vector2Int>(); // 存储原始网格坐标
     
-    // 计算网格的宽高
-    int gridWidth = width;
-    int gridHeight = height;
-    
-    // 计算默认maxKeepCount：总卡牌数的30%
-    if (maxKeepCount == -1)
-    {
-        maxKeepCount = Mathf.Max(0, Mathf.RoundToInt(children.Count * 0.3f));
-    }
-    // 确保maxKeepCount在有效范围内
-    maxKeepCount = Mathf.Clamp(maxKeepCount, 0, children.Count - 1);
-    
-    // 随机选择要保留在原位的卡牌数量（0到maxKeepCount之间）
-    // 使用关卡编号和难度作为随机种子，确保每次结果一致
-    int seed = level * 1000 + (isHard ? 1 : 0);
-    System.Random rng = new System.Random(seed);
-    int cardsToKeep = rng.Next(0, maxKeepCount + 1);
-    
-    // 随机选择要保留在原位的卡牌索引
-    List<int> keepIndices = new List<int>();
-    List<int> allIndices = new List<int>();
-    for (int i = 0; i < children.Count; i++)
-    {
-        allIndices.Add(i);
-    }
-    
-    // 打乱allIndices列表，使用固定种子确保结果一致
-    System.Random shuffleRng = new System.Random(seed + 1);
-    for (int i = allIndices.Count - 1; i > 0; i--)
-    {
-        int j = shuffleRng.Next(0, i + 1);
-        int temp = allIndices[i];
-        allIndices[i] = allIndices[j];
-        allIndices[j] = temp;
-    }
-    
-    // 选择前cardsToKeep个索引作为要保留的卡牌
-    for (int i = 0; i < cardsToKeep; i++)
-    {
-        keepIndices.Add(allIndices[i]);
-        // 从可用位置列表中移除这些索引，它们将保持原位
-        availableIndices.Remove(allIndices[i]);
-    }
-    
-    // 为剩余的卡牌分配新位置
-    List<int> targetIndices = new List<int>(availableIndices);
-    
-    // 困难模式下，尝试让卡牌离原位置更远
-    if (isHard && originalGridCoords.Count == children.Count)
-    {
-        // 为困难模式创建一个偏向于远距离交换的映射
-        System.Random distanceRng = new System.Random(seed + 3);
-        
-        // 多次尝试优化位置，使卡牌移动得更远
-        for (int attempt = 0; attempt < 3; attempt++)
-        {
-            for (int i = 0; i < targetIndices.Count - 1; i++)
+            foreach (Transform child in transform)
             {
-                int currentIndex = availableIndices[i];
-                int currentTarget = targetIndices[i];
-                
-                // 检查当前位置和目标位置的距离
-                if (currentIndex < originalGridCoords.Count && currentTarget < originalGridCoords.Count &&
-                    originalGridCoords[currentIndex].x >= 0 && originalGridCoords[currentTarget].x >= 0)
+                RectTransform rect = child.GetComponent<RectTransform>();
+                if (rect != null)
                 {
-                    int currentDistance = CalculateManhattanDistance(
-                        originalGridCoords[currentIndex].x, originalGridCoords[currentIndex].y,
-                        originalGridCoords[currentTarget].x, originalGridCoords[currentTarget].y);
-                    
-                    // 寻找一个更远的目标位置
-                    for (int j = i + 1; j < targetIndices.Count; j++)
+                    children.Add(rect);
+                    originalPositions.Add(rect.anchoredPosition);
+            
+                    // 解析原始网格坐标
+                    string[] parts = child.name.Replace("GridCell_", "").Split('_');
+                    if (parts.Length == 2)
                     {
-                        int otherIndex = availableIndices[j];
-                        int otherTarget = targetIndices[j];
-                        
-                        if (otherIndex < originalGridCoords.Count && otherTarget < originalGridCoords.Count &&
-                            originalGridCoords[otherIndex].x >= 0 && originalGridCoords[otherTarget].x >= 0)
+                        int x, y;
+                        if (int.TryParse(parts[0], out x) && int.TryParse(parts[1], out y))
                         {
-                            int newDistance1 = CalculateManhattanDistance(
+                            originalGridCoords.Add(new Vector2Int(x, y));
+                            continue;
+                        }
+                    }
+                    originalGridCoords.Add(new Vector2Int(-1, -1)); // 解析失败的情况
+                }
+            }
+    
+            // 如果子对象数量不足2个，无法打乱
+            if (children.Count < 2)
+            {
+                return;
+            }
+    
+            // 获取网格单元的尺寸（从第一个子对象获取）
+            Vector2 cellSize = children[0].sizeDelta;
+    
+            // 创建可用位置列表（初始为所有位置）
+            List<int> availableIndices = new List<int>();
+            for (int i = 0; i < children.Count; i++)
+            {
+                availableIndices.Add(i);
+            }
+    
+            // 计算网格的宽高
+            int gridWidth = width;
+            int gridHeight = height;
+    
+            // 计算默认maxKeepCount：总卡牌数的30%
+            if (maxKeepCount == -1)
+            {
+                maxKeepCount = Mathf.Max(0, Mathf.RoundToInt(children.Count * 0.3f));
+            }
+            // 确保maxKeepCount在有效范围内
+            maxKeepCount = Mathf.Clamp(maxKeepCount, 0, children.Count - 1);
+    
+            // 随机选择要保留在原位的卡牌数量（0到maxKeepCount之间）
+            // 使用关卡编号和难度作为随机种子，确保每次结果一致
+            int seed = level * 1000 + (isHard ? 1 : 0);
+            System.Random rng = new System.Random(seed);
+            int cardsToKeep = rng.Next(0, maxKeepCount + 1);
+    
+            // 随机选择要保留在原位的卡牌索引
+            List<int> keepIndices = new List<int>();
+            List<int> allIndices = new List<int>();
+            for (int i = 0; i < children.Count; i++)
+            {
+                allIndices.Add(i);
+            }
+    
+            // 打乱allIndices列表，使用固定种子确保结果一致
+            System.Random shuffleRng = new System.Random(seed + 1);
+            for (int i = allIndices.Count - 1; i > 0; i--)
+            {
+                int j = shuffleRng.Next(0, i + 1);
+                int temp = allIndices[i];
+                allIndices[i] = allIndices[j];
+                allIndices[j] = temp;
+            }
+    
+            // 选择前cardsToKeep个索引作为要保留的卡牌
+            for (int i = 0; i < cardsToKeep; i++)
+            {
+                keepIndices.Add(allIndices[i]);
+                // 从可用位置列表中移除这些索引，它们将保持原位
+                availableIndices.Remove(allIndices[i]);
+            }
+    
+            // 为剩余的卡牌分配新位置
+            List<int> targetIndices = new List<int>(availableIndices);
+    
+            // 困难模式下，尝试让卡牌离原位置更远
+            if (isHard && originalGridCoords.Count == children.Count)
+            {
+                // 为困难模式创建一个偏向于远距离交换的映射
+                System.Random distanceRng = new System.Random(seed + 3);
+        
+                // 多次尝试优化位置，使卡牌移动得更远
+                for (int attempt = 0; attempt < 3; attempt++)
+                {
+                    for (int i = 0; i < targetIndices.Count - 1; i++)
+                    {
+                        int currentIndex = availableIndices[i];
+                        int currentTarget = targetIndices[i];
+                
+                        // 检查当前位置和目标位置的距离
+                        if (currentIndex < originalGridCoords.Count && currentTarget < originalGridCoords.Count &&
+                            originalGridCoords[currentIndex].x >= 0 && originalGridCoords[currentTarget].x >= 0)
+                        {
+                            int currentDistance = CalculateManhattanDistance(
                                 originalGridCoords[currentIndex].x, originalGridCoords[currentIndex].y,
-                                originalGridCoords[otherTarget].x, originalGridCoords[otherTarget].y);
-                            
-                            int newDistance2 = CalculateManhattanDistance(
-                                originalGridCoords[otherIndex].x, originalGridCoords[otherIndex].y,
                                 originalGridCoords[currentTarget].x, originalGridCoords[currentTarget].y);
-                            
-                            // 如果交换后两个卡牌都离原位置更远，则进行交换
-                            if (newDistance1 > currentDistance && newDistance2 > 
-                                CalculateManhattanDistance(
-                                    originalGridCoords[otherIndex].x, originalGridCoords[otherIndex].y,
-                                    originalGridCoords[otherTarget].x, originalGridCoords[otherTarget].y))
+                    
+                            // 寻找一个更远的目标位置
+                            for (int j = i + 1; j < targetIndices.Count; j++)
                             {
-                                // 交换目标索引
-                                int temp = targetIndices[i];
-                                targetIndices[i] = targetIndices[j];
-                                targetIndices[j] = temp;
-                                break;
+                                int otherIndex = availableIndices[j];
+                                int otherTarget = targetIndices[j];
+                        
+                                if (otherIndex < originalGridCoords.Count && otherTarget < originalGridCoords.Count &&
+                                    originalGridCoords[otherIndex].x >= 0 && originalGridCoords[otherTarget].x >= 0)
+                                {
+                                    int newDistance1 = CalculateManhattanDistance(
+                                        originalGridCoords[currentIndex].x, originalGridCoords[currentIndex].y,
+                                        originalGridCoords[otherTarget].x, originalGridCoords[otherTarget].y);
+                            
+                                    int newDistance2 = CalculateManhattanDistance(
+                                        originalGridCoords[otherIndex].x, originalGridCoords[otherIndex].y,
+                                        originalGridCoords[currentTarget].x, originalGridCoords[currentTarget].y);
+                            
+                                    // 如果交换后两个卡牌都离原位置更远，则进行交换
+                                    if (newDistance1 > currentDistance && newDistance2 > 
+                                        CalculateManhattanDistance(
+                                            originalGridCoords[otherIndex].x, originalGridCoords[otherIndex].y,
+                                            originalGridCoords[otherTarget].x, originalGridCoords[otherTarget].y))
+                                    {
+                                        // 交换目标索引
+                                        int temp = targetIndices[i];
+                                        targetIndices[i] = targetIndices[j];
+                                        targetIndices[j] = temp;
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-    }
-    else
-    {
-        // 普通模式或无法计算网格坐标时，使用原有随机方式
-        System.Random targetRng = new System.Random(seed + 2);
-        for (int i = targetIndices.Count - 1; i > 0; i--)
-        {
-            int j = targetRng.Next(0, i + 1);
-            int temp = targetIndices[i];
-            targetIndices[i] = targetIndices[j];
-            targetIndices[j] = temp;
-        }
-    }
+            else
+            {
+                // 普通模式或无法计算网格坐标时，使用原有随机方式
+                System.Random targetRng = new System.Random(seed + 2);
+                for (int i = targetIndices.Count - 1; i > 0; i--)
+                {
+                    int j = targetRng.Next(0, i + 1);
+                    int temp = targetIndices[i];
+                    targetIndices[i] = targetIndices[j];
+                    targetIndices[j] = temp;
+                }
+            }
     
-    // 应用位置变化
-    for (int i = 0; i < children.Count; i++)
-    {
-        if (keepIndices.Contains(i))
-        {
-            // 保持原位
-            continue;
-        }
+            // 应用位置变化
+            for (int i = 0; i < children.Count; i++)
+            {
+                if (keepIndices.Contains(i))
+                {
+                    // 保持原位
+                    continue;
+                }
         
-        // 找到当前索引在availableIndices中的位置
-        int indexInAvailable = availableIndices.IndexOf(i);
-        if (indexInAvailable >= 0 && indexInAvailable < targetIndices.Count)
-        {
-            int targetIndex = targetIndices[indexInAvailable];
-            children[i].anchoredPosition = originalPositions[targetIndex];
-        }
-    }
+                // 找到当前索引在availableIndices中的位置
+                int indexInAvailable = availableIndices.IndexOf(i);
+                if (indexInAvailable >= 0 && indexInAvailable < targetIndices.Count)
+                {
+                    int targetIndex = targetIndices[indexInAvailable];
+                    children[i].anchoredPosition = originalPositions[targetIndex];
+                }
+            }
+
+            RefreshAllPositionIndices();
     
-    // 更新边框显示状态
-    UpdateBorderVisibility();
-}
+            // 更新边框显示状态
+            UpdateBorderVisibility();
+    }
 }
