@@ -2,7 +2,7 @@
   {
     "id": 1,
     "chapter_title": "Chapter_title_1",
-    "chapter_figure": "chapter",
+    "chapter_figure": "Picture/chapter",
     "chapter_figure_x": 5,
     "chapter_figure_y": 5,
     "next_chapter": 2,
@@ -37,7 +37,7 @@
   {
     "id": 2,
     "chapter_title": "Chapter_title_2",
-    "chapter_figure": "chapter",
+    "chapter_figure": "Picture/chapter",
     "chapter_figure_x": 5,
     "chapter_figure_y": 5,
     "next_chapter": 3,
@@ -72,7 +72,7 @@
   {
     "id": 3,
     "chapter_title": "Chapter_title_3",
-    "chapter_figure": "chapter",
+    "chapter_figure": "Picture/chapter",
     "chapter_figure_x": 5,
     "chapter_figure_y": 5,
     "next_chapter": 0,
