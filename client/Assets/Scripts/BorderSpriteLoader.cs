@@ -34,11 +34,12 @@ public class BorderSpriteLoader : MonoBehaviour
             img.sprite = s;
             img.color = Color.white;
         } else {
-            s = Resources.Load<Sprite>(resourceName);
+            string resourceNameNew = "Card/" + resourceName;
+            s = Resources.Load<Sprite>(resourceNameNew);
             if (s != null) {
                 img.sprite = s;
                 img.color = Color.white;
-                spriteCache[resourceName] = s;
+                spriteCache[resourceNameNew] = s;
             } else {
                 img.sprite = null;
                 img.color = keepColorIfMissing ? Color.gray : Color.clear;
