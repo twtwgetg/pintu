@@ -27,8 +27,7 @@ public class goldplay : MonoBehaviour
         DOVirtual.DelayedCall(delay, () =>
         {
             ParticleSystem ps = GetComponentInChildren<ParticleSystem>();
-
-            StartCoroutine(movetotarget(ps));
+             
         });
     }
     ParticleSystem ptk
@@ -42,9 +41,13 @@ public class goldplay : MonoBehaviour
     {
         particles = new ParticleSystem.Particle[ptk.main.maxParticles];
     }
-
+    public bool movetotarget = false;
     void FixedUpdate() // ����֡���£����ȶ�
     {
+        if (!movetotarget)
+        {
+            return;
+        }
         int count = GetComponent<ParticleSystem>().GetParticles(particles);
 
         for (int i = 0; i < count; i++)
@@ -68,37 +71,5 @@ public class goldplay : MonoBehaviour
     public float speed = 1f;
     private ParticleSystem.Particle[] particles;
     private float attractForce =1;
-    private float drag=1;
-
-    IEnumerator movetotarget(ParticleSystem ps)
-    {
-        
-        if (ps != null && target != null)
-        {
-            ParticleSystem.Particle[] particles = new ParticleSystem.Particle[ps.main.maxParticles];
-            int count = ps.GetParticles(particles);
-
-            bool end = false;
-            // �����������ӣ������Ƿ���Ŀ��
-            while (!end)
-            {
-                end = true;
-                for (int i = 0; i < count; i++)
-                {
-                    var p = particles[i].position;
-                    var disv = (target.position - p);
-                    if (disv.sqrMagnitude > 0.1f)
-                    {
-                        end = false;
-                        break;
-                    }
-                    p += disv.normalized * speed;
-                    particles[i].position = p;
-                }
-                ps.SetParticles(particles, count);
-
-                yield return null;
-            } 
-        }
-    }
+    private float drag=1; 
 }

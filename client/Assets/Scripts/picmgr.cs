@@ -196,11 +196,11 @@ public class picmgr : MonoBehaviour
 
         if (isHard)
         {
-            cellObject.GetComponent<RawImage>().color = Color.red;
+            cellObject.GetComponent<RawImage>().texture =(Texture) Resources.Load("Card/ui_card_02");// Color.red;
         }
         else
         {
-            cellObject.GetComponent<RawImage>().color = Color.white;
+            cellObject.GetComponent<RawImage>().texture = (Texture)Resources.Load("Card/ui_card_01");// Color.red;
         }
         // 添加拖拽组件
         var dg = cellObject.GetComponent<DraggableGridItem>();
