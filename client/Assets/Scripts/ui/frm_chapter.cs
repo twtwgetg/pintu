@@ -11,7 +11,7 @@ public class frm_chapter : frmbase
     public RectTransform chaptercontent;
     public Button btn;
     public Button btnsetup;
-    public TextMeshProUGUI staminaText; // power显示文本组件
+    public TextMeshProUGUI staminaText,levelname; // power显示文本组件
     public Image fillimg;
     private void Awake()
     {
@@ -41,6 +41,11 @@ public class frm_chapter : frmbase
             brushChapterContent();
             show();
             return 1;
+        });
+        Main.RegistEvent("level_back", (x) =>
+        {
+            show();
+            return null;
         });
         btn.onClick.AddListener(() =>
         {
@@ -132,10 +137,11 @@ public class frm_chapter : frmbase
     {
         var chapter = datamgr.Instance.GetChapter(PlayerData.gd.currChapter);
         var pic = Resources.Load(chapter.ChapterFigure) as Texture;
-        
+
+        levelname.text= $"Level { PlayerData.gd.levelid%10000}";
         // 调整chaptercontent大小
         //ResizeChapterContent();
-        
+
         // 清除现有的子对象（使用倒序删除避免遍历时修改集合的问题）
         for (int i = chaptercontent.childCount - 1; i >= 0; i--)
         {
@@ -200,128 +206,26 @@ public class frm_chapter : frmbase
         }
         
     }
-    
-    // 创建边框
-    private void CreateBorders(GameObject cellObject, float cellWidth, float cellHeight)
-    {
-        // 边框宽度
-        float borderWidth = 20f;
-        
-        // 为防止角与边重合，将角大小限制为单元尺寸的一半以内
-        float bw = Mathf.Min(borderWidth, cellWidth / 2f, cellHeight / 2f);
-        
-        // 创建四个角
-        CreateBorder(cellObject, "TopLeftBorder", new Vector2(0, cellHeight - bw), new Vector2(bw, bw));
-        CreateBorder(cellObject, "TopRightBorder", new Vector2(cellWidth - bw, cellHeight - bw), new Vector2(bw, bw));
-        CreateBorder(cellObject, "BottomRightBorder", new Vector2(cellWidth - bw, 0), new Vector2(bw, bw));
-        CreateBorder(cellObject, "BottomLeftBorder", new Vector2(0, 0), new Vector2(bw, bw));
-        
-        // 创建四个边，缩进到角的内部以避免重合
-        CreateBorder(cellObject, "TopBorder", new Vector2(bw, cellHeight - bw), new Vector2(Mathf.Max(0f, cellWidth - 2f * bw), bw));
-        CreateBorder(cellObject, "BottomBorder", new Vector2(bw, 0), new Vector2(Mathf.Max(0f, cellWidth - 2f * bw), bw));
-        CreateBorder(cellObject, "LeftBorder", new Vector2(0, bw), new Vector2(bw, Mathf.Max(0f, cellHeight - 2f * bw)));
-        CreateBorder(cellObject, "RightBorder", new Vector2(cellWidth - bw, bw), new Vector2(bw, Mathf.Max(0f, cellHeight - 2f * bw)));
-    }
-    
-    // 创建单个边框
-    private void CreateBorder(GameObject parent, string name, Vector2 anchoredPosition, Vector2 sizeDelta)
-    {
-        GameObject borderObject = new GameObject(name);
-        borderObject.transform.SetParent(parent.transform, false);
-        
-        RectTransform borderRect = borderObject.AddComponent<RectTransform>();
-        borderRect.anchorMin = new Vector2(0, 0);
-        borderRect.anchorMax = new Vector2(0, 0);
-        borderRect.pivot = new Vector2(0, 0);
-        borderRect.anchoredPosition = anchoredPosition;
-        borderRect.sizeDelta = sizeDelta;
-        
-        Image borderImage = borderObject.AddComponent<Image>();
-        borderImage.color = Color.white; // 默认为白色，后续会通过BorderSpriteLoader加载实际图片
-        
-        // 为边框添加加载器组件
-        BorderSpriteLoader loader = borderObject.AddComponent<BorderSpriteLoader>();
-        loader.resourceName = MapBorderNameToResource(name);
-        loader.LoadSprite();
-    }
-    
-    // 将边框对象名映射到Resources中的贴图名
-    private string MapBorderNameToResource(string borderName)
-    {
-        switch (borderName)
-        {
-            case "TopLeftBorder": return "lt";
-            case "TopBorder": return "t";
-            case "TopRightBorder": return "rt";
-            case "RightBorder": return "r";
-            case "BottomRightBorder": return "rb";
-            case "BottomBorder": return "b";
-            case "BottomLeftBorder": return "lb";
-            case "LeftBorder": return "l";
-            default: return borderName;
-        }
-    }
-    
-    // 更新边框显示状态
-    private void UpdateBorderVisibility()
-    {
-        // 获取所有子节点（格子）
-        List<RectTransform> gridItems = new List<RectTransform>();
-        foreach (Transform child in chaptercontent)
-        {
-            if (child.name.StartsWith("ChapterCell_"))
-            {
-                gridItems.Add(child.GetComponent<RectTransform>());
-            }
-        }
-        
-        if (gridItems.Count == 0) return;
-        
-        // 计算每个格子的尺寸（假设所有格子大小相同）
-        RectTransform firstItem = gridItems[0];
-        Vector2 cellSize = firstItem.sizeDelta;
-        
-        // 对于简单的章节显示，可以简单地显示所有边框
-        // 在实际应用中，可以根据相邻关系优化显示
-        foreach (RectTransform item in gridItems)
-        {
-            // 获取边框对象
-            GameObject topLeftBorder = FindChildByName(item.gameObject, "TopLeftBorder");
-            GameObject topRightBorder = FindChildByName(item.gameObject, "TopRightBorder");
-            GameObject bottomRightBorder = FindChildByName(item.gameObject, "BottomRightBorder");
-            GameObject bottomLeftBorder = FindChildByName(item.gameObject, "BottomLeftBorder");
-            GameObject topBorder = FindChildByName(item.gameObject, "TopBorder");
-            GameObject bottomBorder = FindChildByName(item.gameObject, "BottomBorder");
-            GameObject leftBorder = FindChildByName(item.gameObject, "LeftBorder");
-            GameObject rightBorder = FindChildByName(item.gameObject, "RightBorder");
-            
-            // 设置边框显示状态
-            if (topLeftBorder != null) topLeftBorder.SetActive(true);
-            if (topRightBorder != null) topRightBorder.SetActive(true);
-            if (bottomRightBorder != null) bottomRightBorder.SetActive(true);
-            if (bottomLeftBorder != null) bottomLeftBorder.SetActive(true);
-            if (topBorder != null) topBorder.SetActive(true);
-            if (bottomBorder != null) bottomBorder.SetActive(true);
-            if (leftBorder != null) leftBorder.SetActive(true);
-            if (rightBorder != null) rightBorder.SetActive(true);
-        }
-    }
-    
-    // 根据名称查找子对象
-    private GameObject FindChildByName(GameObject parent, string name)
-    {
-        Transform child = parent.transform.Find(name);
-        return child != null ? child.gameObject : null;
-    }
-    
+     
     // 更新power显示
-    private void UpdateStaminaDisplay()
+ private void UpdateStaminaDisplay()
+{
+    if (staminaText != null)
     {
-        if (staminaText != null)
+        string powerText;
+        if (PlayerData.gd.power < 1000)
         {
-            staminaText.text = $"{PlayerData.gd.power}/100";
-            float v = (float)PlayerData.gd.power / 100f;
-            fillimg.fillAmount = v;
+            powerText = PlayerData.gd.power.ToString();
         }
+        else
+        {
+            float kValue = PlayerData.gd.power / 1000f;
+            powerText = $"{kValue:F1}K";
+        }
+        
+        staminaText.text = $"{powerText}";
+        float v = (float)PlayerData.gd.power / 100f;
+        //fillimg.fillAmount = v;
     }
+}
 }

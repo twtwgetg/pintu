@@ -103,7 +103,9 @@ public class BorderSpriteLoader : MonoBehaviour
                 else if (!isLeftCorrect && isTopCorrect)
                     key = "l";
                 else
-                    Debug.LogError("lt未处理的情况: ");
+                {
+
+                }
                 break;
             case "rt": // 右上角
                 if (isRightCorrect && isTopCorrect && !isConnerCorrect)
@@ -115,7 +117,9 @@ public class BorderSpriteLoader : MonoBehaviour
                 else if (!isRightCorrect && isTopCorrect)
                     key = "r";
                 else
-                    Debug.LogError("rt未处理的情况: ");
+                {
+
+                }
                 break;
             case "rb": // 右下角
                 // 修改：添加对右下方对角线邻居的判断
@@ -128,7 +132,9 @@ public class BorderSpriteLoader : MonoBehaviour
                 else if (!isRightCorrect && isBottomCorrect)
                     key = "r";
                 else
-                    Debug.LogError("rb未处理的情况: ");
+                {
+
+                }   
                 break;
             case "lb": // 左下角
                 if (isLeftCorrect && isBottomCorrect && !isConnerCorrect)
@@ -140,7 +146,8 @@ public class BorderSpriteLoader : MonoBehaviour
                 else if (!isLeftCorrect && isBottomCorrect)
                     key = "l";
                 else
-                    Debug.LogError("lb未处理的情况: ");
+                {
+                }
                 break;
             default:
                 Debug.LogError("Invalid property: " + prop);

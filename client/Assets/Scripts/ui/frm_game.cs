@@ -10,6 +10,8 @@ public class frm_game : frmbase
     public picmgr mgr;
     public TextMeshProUGUI level;
     public Button next;
+    public Button back;
+    public Button setup;
     private void Awake()
     {
         Main.RegistEvent("level_play", (x) =>
@@ -69,6 +71,15 @@ public class frm_game : frmbase
         {
             Main.SendEvent("level_next");
             hide();
+        });
+        back.onClick.AddListener(() =>
+        {
+            Main.SendEvent("level_back");
+            hide();
+        });
+        setup.onClick.AddListener(() =>
+        {
+            Main.DispEvent("show_setup");
         });
     }
     IEnumerator load(cfg.DrLevel leevel)

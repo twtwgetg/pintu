@@ -12,7 +12,9 @@ public class frm_victory : frmbase
     {
         Main.RegistEvent("show_next", (x)=>
         {
+            Debug.Log("show_next");
             show();
+
             DrLevel leevel =  x as DrLevel;
             img.texture = Resources.Load(leevel.LevelFigure) as Texture2D;
 
