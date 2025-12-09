@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 4124065062105764358}
   - component: {fileID: 8161784575931522008}
   - component: {fileID: 5192034853886608085}
-  - component: {fileID: 3824575542712153488}
   m_Layer: 5
   m_Name: UIParticle
   m_TagString: Untagged
@@ -83,21 +82,6 @@ MonoBehaviour:
   m_UseCustomView: 0
   m_CustomViewSize: 10
   m_TimeScaleMultiplier: 1
---- !u!114 &3824575542712153488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7043120157271136107}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9afc1f015a986774c9b3bf5bb71f2efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  delay: 1
-  target: {fileID: 0}
-  speed: 1
 --- !u!1 &8551178938764741274
 GameObject:
   m_ObjectHideFlags: 0

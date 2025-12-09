@@ -1,75 +1,78 @@
-
 using Coffee.UIExtensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.UI;
+
 public class goldplay : MonoBehaviour
 {
     public float delay = 1f;
-    public Transform target;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void Play()
     {
+        tagmt.endRange = 0;
+        GetComponent<UIParticle>().Stop();
         GetComponent<UIParticle>().Play();
         DOVirtual.DelayedCall(delay, () =>
         {
-            ParticleSystem ps = GetComponentInChildren<ParticleSystem>();
-             
+
+            RectTransform canvasRect = canvas.transform as RectTransform;
+            RectTransformUtility.ScreenPointToWorldPointInRectangle(
+                canvasRect,
+                targetIcon.position,
+                null, // Overlay模式无需相机
+                out targetWorldPos
+            );
+            tagmt.transform.position = targetWorldPos;
+            var local = ptk.transform.InverseTransformPoint(targetWorldPos);
+            tagmt.transform.SetParent(ptk.transform);
+            tagmt.transform.localPosition /= (10 / 0.6666666667f);
+            tagmt.endRange = 180;
         });
     }
-    ParticleSystem ptk
+
+    public void Trans()
+    {
+
+    }
+
+    private ParticleSystem ptk
     {
         get
         {
             return GetComponentInChildren<ParticleSystem>();
         }
     }
+    private int maxParticles; // 缓存最大粒子数
+    
     private void Awake()
     {
-        particles = new ParticleSystem.Particle[ptk.main.maxParticles];
-    }
-    public bool movetotarget = false;
-    void FixedUpdate() // ����֡���£����ȶ�
-    {
-        if (!movetotarget)
+        if (ptk != null)
         {
-            return;
+            maxParticles = ptk.main.maxParticles;
+            particles = new ParticleSystem.Particle[maxParticles];
         }
-        int count = GetComponent<ParticleSystem>().GetParticles(particles);
-
-        for (int i = 0; i < count; i++)
-        {
-            // 1. �������ӵ�Ŀ��ķ���
-            Vector3 direction = target.position - particles[i].position;
-            // 2. ����������������Խ������ԽС��������ͷ��
-            float distance = direction.magnitude;
-            if (distance < 0.1f) // ����Ŀ���ֹͣ
-            {
-                particles[i].velocity = Vector3.zero;
-                continue;
-            }
-            // 3. Ӧ������ + ��ҷ����
-            Vector3 force = direction.normalized * attractForce * (1 - distance / 5f); // ����˥��
-            particles[i].velocity = particles[i].velocity * (1 - drag * Time.fixedDeltaTime) + force;
-        }
-
-        GetComponent<ParticleSystem>().SetParticles(particles, count);
     }
+     
+    // 添加死亡距离阈值
+    public float deathDistance = 0.1f;
+    
+    // 添加力的衰减因子
+    public float forceAttenuation = 1.0f;
+    
+    // 吸引力强度
+    public float attractForce = 1;
+    
+    private Vector3 targetWorldPos; // 目标图标的世界坐标
+    public Transform targetIcon; // 目标UI图标（Image/Button）
+    public Canvas canvas; // 主Canvas（Overlay模式）
+    public Image follow;
+    
+    public ParticleSystemForceField tagmt; 
+
     public float speed = 1f;
     private ParticleSystem.Particle[] particles;
-    private float attractForce =1;
-    private float drag=1; 
+    public float flySpeed = 500;
+    public float drag = 5f;
 }

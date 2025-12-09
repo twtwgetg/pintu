@@ -13,5 +13,10 @@ public class goldplayeditor : Editor
         {
             goldplay.Play();
         }
+        if (GUILayout.Button("Goldplay2"))
+        {
+            goldplay.Trans();
+        }
+
     }
 }
