@@ -21,43 +21,22 @@ public class frm_game : frmbase
             {
                 Debug.Log("power不足，无法开始游戏");
                 // 可以在这里添加power不足的提示
-                Main.DispEvent("event_msg", "power不足，无法开始游戏");
+                Main.DispEvent("event_msg", "体力不足，无法开始游戏");
                 return 0;
             }
             
-            // 消耗10点power
             PlayerData.gd.消耗power(10);
-            
+
             next.gameObject.SetActive(false);
-            var rectTrans =mgr.GetComponent<RectTransform>();
-            // 2. 设置边距(Left/Right/Top/Bottom)和图片大小一致
-            rectTrans.offsetMin = new Vector2(82.82125f, 124.4235f);  // Left和Bottom，offsetMin = (Left, Bottom)
-            rectTrans.offsetMax = new Vector2(-82.82125f, -208.2435f); // Right和Top，offsetMax = (-Right, -Top)
+            level.gameObject.SetActive(false);
+            back.gameObject.SetActive(false);
+            setup.gameObject.SetActive(false);
+
             mgr.ResizeChapterContent();
             var leevel = datamgr.Instance.GetLevel((int)x);
-            level.text = $"Level { leevel.Id}";
-            if (leevel.DifficultyTier == 2)
-            {
-                var df = gb.Find("diff");
-                df.gameObject.SetActive(true);
-                DG.Tweening.DOVirtual.Float(0, 1, .5f, (xvx) =>
-                {
-                    df.GetComponent<CanvasGroup>().alpha = xvx;
+            level.text = $"{leevel.Id / 100000}-{leevel.Id % 100000}";
 
-                }).onComplete=()=> { 
-                    
-                    DG.Tweening.DOVirtual.DelayedCall(1, () =>
-                    {
-                        DG.Tweening.DOVirtual.Float(1, 0, .5f, (xvx) =>
-                        {
-                            df.GetComponent<CanvasGroup>().alpha = xvx;
-                        }).onComplete = () =>
-                        {
-                            df.gameObject.SetActive(false);
-                        };
-                    });
-                };
-            }
+            Main.DispEvent("event_loading", true);
             show();
             StartCoroutine(load(leevel));
             return 1;
@@ -84,8 +63,33 @@ public class frm_game : frmbase
     }
     IEnumerator load(cfg.DrLevel leevel)
     {
+        yield return StartCoroutine(mgr.LoadLevel(leevel));
 
-        yield return StartCoroutine(mgr.LoadLevel(leevel)); 
+        level.gameObject.SetActive(true);
+        back.gameObject.SetActive(true);
+        setup.gameObject.SetActive(true);
+
+        if (leevel.DifficultyTier == 2)
+        {
+            var df = gb.Find("diff");
+            df.gameObject.SetActive(true);
+            DG.Tweening.DOVirtual.Float(0, 1, .5f, (xvx) =>
+            {
+                df.GetComponent<CanvasGroup>().alpha = xvx;
+            }).onComplete = () =>
+            {
+                DG.Tweening.DOVirtual.DelayedCall(1, () =>
+                {
+                    DG.Tweening.DOVirtual.Float(1, 0, .5f, (xvx) =>
+                    {
+                        df.GetComponent<CanvasGroup>().alpha = xvx;
+                    }).onComplete = () =>
+                    {
+                        df.gameObject.SetActive(false);
+                    };
+                });
+            };
+        }
     } 
 
     // Start is called before the first frame update

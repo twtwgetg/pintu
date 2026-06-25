@@ -13,6 +13,9 @@ using UnityEditor;
 
 public class picmgr : MonoBehaviour
 {
+    private const float CardAspect = 102f / 148f;
+    private const float PuzzleMargin = 50f;
+
     public Texture2D pic;
     public int width=3;
     public int height=3;
@@ -40,45 +43,111 @@ public class picmgr : MonoBehaviour
     }
     public void ResizeChapterContent()
     {
-        // 获取屏幕尺寸
-        float screenWidth = Screen.width;
-        float screenHeight = Screen.height;
+        ResizePuzzleContentInParent();
+        return;
+#if false
 
-        //// 设置边界边距（最低50像素）
-        float margin = 100f;
+        // 使用 CanvasScaler 的 referenceResolution，确保在不同分辨率下一致
+        Canvas canvas = GetComponentInParent<Canvas>();
+        float refWidth, refHeight, scaleFactor = 1f;
 
-        //// 计算可用空间
-        float availableWidth = screenWidth - 2 * margin;
-        float availableHeight = screenHeight - 2 * margin;
+        if (canvas != null)
+        {
+            CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+            if (scaler != null && scaler.uiScaleMode != CanvasScaler.ScaleMode.ConstantPixelSize)
+            {
+                refWidth = scaler.referenceResolution.x;
+                refHeight = scaler.referenceResolution.y;
+                // 根据当前屏幕和 referenceResolution 计算缩放比例
+                scaleFactor = (float)Screen.height / refHeight;
+            }
+            else
+            {
+                // 没有 CanvasScaler 或 ConstantPixelSize，直接使用屏幕尺寸
+                refWidth = Screen.width;
+                refHeight = Screen.height;
+            }
+        }
+        else
+        {
+            refWidth = Screen.width;
+            refHeight = Screen.height;
+        }
 
-        //// 9:16宽高比的目标宽高
+        // 边距根据缩放比例自适应
+        float margin = PuzzleMargin * scaleFactor;
+
+        // 计算可用空间
+        float availableWidth = refWidth - 2 * margin;
+        float availableHeight = refHeight - 2 * margin;
+
+        // 9:16 宽高比的目标宽高
+        float puzzleAspect = GetPuzzleAspect();
         float targetWidth, targetHeight;
 
-        //// 根据可用空间计算最佳尺寸
-        if (availableWidth / availableHeight > 9f / 16f)
+        if (availableWidth / availableHeight > puzzleAspect)
         {
             // 以高度为基准
             targetHeight = availableHeight;
-            targetWidth = targetHeight * 9f / 16f;
+            targetWidth = targetHeight * puzzleAspect;
         }
         else
         {
             // 以宽度为基准
             targetWidth = availableWidth;
-            targetHeight = targetWidth * 16f / 9f;
+            targetHeight = targetWidth / puzzleAspect;
         }
 
-        float wside = (screenWidth - targetWidth) / 2;
-        float hside = (screenHeight - targetHeight) / 2;
-        trans.offsetMin = new Vector2(wside, hside);  // Left和Bottom（offsetMin = (Left, Bottom)）
-        trans.offsetMax = new Vector2(-wside, -hside); // Right和Top（offsetMax = (-Right, -Top)）
-
-        //// 设置chaptercontent的尺寸
-        //chaptercontent.sizeDelta = new Vector2(targetWidth, targetHeight);
-
-        //// 设置chaptercontent居中
-        //chaptercontent.anchoredPosition = Vector2.zero;
+        float wside = (refWidth - targetWidth) / 2;
+        float hside = (refHeight - targetHeight) / 2;
+        trans.offsetMin = new Vector2(wside, hside);
+        trans.offsetMax = new Vector2(-wside, -hside);
+#endif
     }
+
+    private void ResizePuzzleContentInParent()
+    {
+        Canvas.ForceUpdateCanvases();
+
+        RectTransform parent = trans.parent as RectTransform;
+        Vector2 parentSize = parent != null
+            ? parent.rect.size
+            : new Vector2(Screen.width, Screen.height);
+
+        float availableWidth = Mathf.Max(1f, parentSize.x - 2f * PuzzleMargin);
+        float availableHeight = Mathf.Max(1f, parentSize.y - 2f * PuzzleMargin);
+        float puzzleAspect = GetPuzzleAspect();
+
+        float targetWidth;
+        float targetHeight;
+        if (availableWidth / availableHeight > puzzleAspect)
+        {
+            targetHeight = availableHeight;
+            targetWidth = targetHeight * puzzleAspect;
+        }
+        else
+        {
+            targetWidth = availableWidth;
+            targetHeight = targetWidth / puzzleAspect;
+        }
+
+        trans.anchorMin = new Vector2(0.5f, 0.5f);
+        trans.anchorMax = new Vector2(0.5f, 0.5f);
+        trans.pivot = new Vector2(0.5f, 0.5f);
+        trans.anchoredPosition = Vector2.zero;
+        trans.sizeDelta = new Vector2(targetWidth, targetHeight);
+    }
+
+    private float GetPuzzleAspect()
+    {
+        if (width > 0 && height > 0)
+        {
+            return Mathf.Max(0.01f, CardAspect * width / height);
+        }
+
+        return CardAspect;
+    }
+
     RectTransform trans
     {
         get
@@ -87,12 +156,22 @@ public class picmgr : MonoBehaviour
         }
     }
     DrLevel curlevel;
+    // 发牌动画是否完成，未完成时禁止拖拽
+    public bool cardsReady = false;
     public IEnumerator  LoadLevel(DrLevel leevel)
     {
         curlevel = leevel;
         width = leevel.LevelFigureX;
         height = leevel.LevelFigureY;
-        pic = Resources.Load(leevel.LevelFigure) as Texture2D;
+        
+        yield return Main.inst.StartCoroutine(Main.LoadTextureFromCDN(leevel.LevelFigure, (texture) =>
+        {
+            pic = texture;
+        }));
+        ResizeChapterContent();
+        Canvas.ForceUpdateCanvases();
+        Main.DispEvent("event_loading", false);
+
         if(leevel.DifficultyTier==2)
         {
             Main.DispEvent("event_tips", "困难模式");
@@ -108,6 +187,7 @@ public class picmgr : MonoBehaviour
         // 编辑器测试方法，使用默认参数
         //StartCoroutine(CreateGridImages(1, -1, false));
         clearOld();
+        ResizePuzzleContentInParent();
         RectTransform rectTransform = GetComponent<RectTransform>();
         Vector2 rectSize = rectTransform.rect.size;
 
@@ -132,7 +212,9 @@ public class picmgr : MonoBehaviour
     // isHard: 是否为困难模式
     public IEnumerator CreateGridImages(int level = 1, int maxKeepCount = -1, bool isHard = false)
     {
+        cardsReady = false;
         clearOld();
+        ResizePuzzleContentInParent();
 
         RectTransform rectTransform = GetComponent<RectTransform>();
         Vector2 rectSize = rectTransform.rect.size;
@@ -159,7 +241,9 @@ public class picmgr : MonoBehaviour
             var d = x.GetComponent<DraggableGridItem>();
             d.Turn();
         }
-     
+        // 等待所有 Turn 动画完成（并行执行，约 1 秒）后再允许拖拽
+        yield return new WaitForSeconds(1.1f);
+        cardsReady = true;
     }
 
     private void clearOld()
@@ -389,20 +473,25 @@ public class picmgr : MonoBehaviour
         }
     }
     
-    // 更新边框显示状态
+    // 更新边框显示状态（非拖拽项）
     public void UpdateBorderVisibility()
     {
-        // 获取所有子节点
-        List<DraggableGridItem> gridItems = new List<DraggableGridItem>();
+        List<DraggableGridItem> allItems = new List<DraggableGridItem>();
         foreach (Transform child in transform)
         {
             DraggableGridItem item = child.GetComponent<DraggableGridItem>();
-            if (item != null)
-            {
-                gridItems.Add(item);
-            }
+            if (item != null && !item.IsBeingDragged)
+                allItems.Add(item);
         }
-        
+        if (allItems.Count > 0)
+            UpdateBorderVisibility(allItems);
+    }
+
+    // 更新边框显示状态（指定组，拖拽项专用）
+    public void UpdateBorderVisibility(List<DraggableGridItem> group)
+    {
+        if (group == null || group.Count == 0) return;
+
         // 计算每个格子的尺寸
         RectTransform rectTransform = GetComponent<RectTransform>();
         Vector2 rectSize = rectTransform.rect.size;
@@ -410,7 +499,7 @@ public class picmgr : MonoBehaviour
         float cellHeight = rectSize.y / height;
         
         // 检查每对相邻节点的关系
-        foreach (DraggableGridItem item in gridItems)
+        foreach (DraggableGridItem item in group)
         {
             RectTransform itemRect = item.GetComponent<RectTransform>();
             if (itemRect == null) continue;
@@ -422,63 +511,49 @@ public class picmgr : MonoBehaviour
             int x, y;
             if (!int.TryParse(parts[0], out x) || !int.TryParse(parts[1], out y)) continue;
             
-            if(x==1 && y == 1)
-            {
-                int xxx = 0;
-            }
-
             // 检查四个方向的逻辑邻居
-            // 使用实际位置（anchoredPosition）检测是否有邻居存在在期望的位置
-            float checkThreshold = 1.5f; // 允许的距离阈值（像素）
+            float checkThreshold = 1.5f;
 
-            // 使用当前项的实际anchoredPosition作为基准，加上单元格偏移去寻找相邻项（处理移动后的情况更稳健）
             Vector2 expectedRightPos = itemRect.anchoredPosition + new Vector2(cellWidth, 0);
             Vector2 expectedLeftPos = itemRect.anchoredPosition + new Vector2(-cellWidth, 0);
             Vector2 expectedTopPos = itemRect.anchoredPosition + new Vector2(0, cellHeight);
             Vector2 expectedBottomPos = itemRect.anchoredPosition + new Vector2(0, -cellHeight);
 
-            // 查找占位的项（如果有）并判断该项是否是逻辑上正确的邻居（名称匹配）
-            DraggableGridItem rightNeighborItem = FindGridItemAtAnchoredPosition(expectedRightPos, gridItems, checkThreshold);
-            DraggableGridItem leftNeighborItem = FindGridItemAtAnchoredPosition(expectedLeftPos, gridItems, checkThreshold);
-            DraggableGridItem topNeighborItem = FindGridItemAtAnchoredPosition(expectedTopPos, gridItems, checkThreshold);
-            DraggableGridItem bottomNeighborItem = FindGridItemAtAnchoredPosition(expectedBottomPos, gridItems, checkThreshold);
+            DraggableGridItem rightNeighborItem = FindGridItemAtAnchoredPosition(expectedRightPos, group, checkThreshold);
+            DraggableGridItem leftNeighborItem = FindGridItemAtAnchoredPosition(expectedLeftPos, group, checkThreshold);
+            DraggableGridItem topNeighborItem = FindGridItemAtAnchoredPosition(expectedTopPos, group, checkThreshold);
+            DraggableGridItem bottomNeighborItem = FindGridItemAtAnchoredPosition(expectedBottomPos, group, checkThreshold);
 
-            // 对角线邻居（用于判定角贴图的反转等特殊规则）
             Vector2 expectedTopRightPos = itemRect.anchoredPosition + new Vector2(cellWidth, cellHeight);
             Vector2 expectedTopLeftPos = itemRect.anchoredPosition + new Vector2(-cellWidth, cellHeight);
             Vector2 expectedBottomRightPos = itemRect.anchoredPosition + new Vector2(cellWidth, -cellHeight);
             Vector2 expectedBottomLeftPos = itemRect.anchoredPosition + new Vector2(-cellWidth, -cellHeight);
 
-            DraggableGridItem topRightNeighborItem = FindGridItemAtAnchoredPosition(expectedTopRightPos, gridItems, checkThreshold);
-            DraggableGridItem topLeftNeighborItem = FindGridItemAtAnchoredPosition(expectedTopLeftPos, gridItems, checkThreshold);
-            DraggableGridItem bottomRightNeighborItem = FindGridItemAtAnchoredPosition(expectedBottomRightPos, gridItems, checkThreshold);
-            DraggableGridItem bottomLeftNeighborItem = FindGridItemAtAnchoredPosition(expectedBottomLeftPos, gridItems, checkThreshold);
+            DraggableGridItem topRightNeighborItem = FindGridItemAtAnchoredPosition(expectedTopRightPos, group, checkThreshold);
+            DraggableGridItem topLeftNeighborItem = FindGridItemAtAnchoredPosition(expectedTopLeftPos, group, checkThreshold);
+            DraggableGridItem bottomRightNeighborItem = FindGridItemAtAnchoredPosition(expectedBottomRightPos, group, checkThreshold);
+            DraggableGridItem bottomLeftNeighborItem = FindGridItemAtAnchoredPosition(expectedBottomLeftPos, group, checkThreshold);
 
             bool isRightCorrect = (rightNeighborItem != null && rightNeighborItem.gameObject.name == ("GridCell_" + (x + 1) + "_" + y));
             bool isLeftCorrect = (leftNeighborItem != null && leftNeighborItem.gameObject.name == ("GridCell_" + (x - 1) + "_" + y));
             bool isTopCorrect = (topNeighborItem != null && topNeighborItem.gameObject.name == ("GridCell_" + x + "_" + (y + 1)));
             bool isBottomCorrect = (bottomNeighborItem != null && bottomNeighborItem.gameObject.name == ("GridCell_" + x + "_" + (y - 1)));
 
-            // 对角线正确性判断
             bool isTopRightCorrect = (topRightNeighborItem != null && topRightNeighborItem.gameObject.name == ("GridCell_" + (x + 1) + "_" + (y + 1)));
             bool isTopLeftCorrect = (topLeftNeighborItem != null && topLeftNeighborItem.gameObject.name == ("GridCell_" + (x - 1) + "_" + (y + 1)));
             bool isBottomRightCorrect = (bottomRightNeighborItem != null && bottomRightNeighborItem.gameObject.name == ("GridCell_" + (x + 1) + "_" + (y - 1)));
             bool isBottomLeftCorrect = (bottomLeftNeighborItem != null && bottomLeftNeighborItem.gameObject.name == ("GridCell_" + (x - 1) + "_" + (y - 1)));
 
-            // 当逻辑正确的邻居存在时，视为相邻合法（边不显示）；否则显示边
             bool rightShown = !isRightCorrect;
             bool leftShown = !isLeftCorrect;
             bool topShown = !isTopCorrect;
             bool bottomShown = !isBottomCorrect;
 
-            // 将相邻正确性写回到组件以便在 Inspector 中观察（true 表示逻辑上有正确邻居）
             item.adjacentRight = isRightCorrect;
             item.adjacentLeft = isLeftCorrect;
             item.adjacentTop = isTopCorrect;
             item.adjacentBottom = isBottomCorrect;
-            // （已用逻辑正确性赋值，不再使用旧的 hasXNeighbor 变量）
 
-            // 获取边框对象（包括角）
             GameObject rightBorder = FindChildByName(item.gameObject, "RightBorder");
             GameObject leftBorder = FindChildByName(item.gameObject, "LeftBorder");
             GameObject topBorder = FindChildByName(item.gameObject, "TopBorder");
@@ -489,7 +564,6 @@ public class picmgr : MonoBehaviour
             GameObject bottomRightBorder = FindChildByName(item.gameObject, "BottomRightBorder");
             GameObject bottomLeftBorder = FindChildByName(item.gameObject, "BottomLeftBorder");
 
-            // 根据邻居关系和位置正确性设置边框显示状态
             if (rightBorder != null)
                 rightBorder.SetActive(rightShown);
 
@@ -502,7 +576,6 @@ public class picmgr : MonoBehaviour
             if (bottomBorder != null)
                 bottomBorder.SetActive(bottomShown);
 
-            // 角的显示规则：当与角相邻的任一边需要显示时，显示角
             if (topLeftBorder != null)
                 topLeftBorder.SetActive(topShown || leftShown || !isTopLeftCorrect);
 
@@ -515,7 +588,6 @@ public class picmgr : MonoBehaviour
             if (bottomLeftBorder != null)
                 bottomLeftBorder.SetActive(bottomShown || leftShown || !isBottomLeftCorrect);
 
-            // 刷新角/边的贴图：把具体选择规则委托给 BorderSpriteLoader
             if (topLeftBorder != null)
             {
                 BorderSpriteLoader bl = topLeftBorder.GetComponent<BorderSpriteLoader>();
@@ -675,6 +747,7 @@ public class picmgr : MonoBehaviour
                     }
                     
                     Main.DispEvent("show_next", curlevel);
+                    clearOld();
                 };
             }
         }

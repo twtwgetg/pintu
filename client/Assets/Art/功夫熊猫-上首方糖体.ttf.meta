@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 5decdc1dae7594d4087eac054f0497ab
+guid: Ci5K5n7+Ui8uKFNC9/IFSCBl7Sf0j7FG5jWLb7As0RewYO7N2vQ2gGg=
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -11,7 +11,7 @@ TrueTypeFontImporter:
   fontNames:
   - 033-SSFangTangTi
   fallbackFontReferences: []
-  customCharacters: 
+  customCharacters: "\u521D\u59CB\u5316Loading\u52A0\u8F7D\u4E2D"
   fontRenderingMode: 0
   ascentCalculationMode: 1
   useLegacyBoundsCalculation: 0

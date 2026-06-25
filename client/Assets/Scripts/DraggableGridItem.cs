@@ -89,6 +89,7 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     private Dictionary<DraggableGridItem, Vector2> groupOriginalPositions = null;
     private Dictionary<DraggableGridItem, int> groupOriginalSiblingIndices = null;
     private bool isDragging = false; // 标记是否正在拖拽
+    public bool IsBeingDragged => isDragging;
     internal Texture2D pic;
     internal float uvWidth;
     internal float uvHeight;
@@ -98,6 +99,12 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     
     public void OnBeginDrag(PointerEventData eventData)
     {
+        // 发牌动画未完成，禁止拖拽
+        if (picmgr.instance != null && !picmgr.instance.cardsReady)
+        {
+            return;
+        }
+        
         // 如果已经有卡牌在拖拽，则直接返回，禁止同时拖拽多张卡牌
         if (isAnyItemDragging)
         {
@@ -134,22 +141,57 @@ public class DraggableGridItem : MonoBehaviour, IBeginDragHandler, IDragHandler,
     
     public void OnDrag(PointerEventData eventData)
     {
-        // 拖拽过程中更新位置
-        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+        RectTransform parentRect = transform.parent as RectTransform;
+        if (parentRect == null) return;
 
-        // 计算位移并应用到组内其他项
+        Vector2 rawNewPos = rectTransform.anchoredPosition + eventData.delta / canvas.scaleFactor;
+        Vector2 rawDelta = rawNewPos - originalPosition;
+
+        List<DraggableGridItem> allItems = dragGroup ?? new List<DraggableGridItem>() { this };
+
+        float minDX = float.MinValue, maxDX = float.MaxValue;
+        float minDY = float.MinValue, maxDY = float.MaxValue;
+
+        foreach (var item in allItems)
+        {
+            Vector2 orig;
+            if (item == this)
+                orig = originalPosition;
+            else if (groupOriginalPositions != null && groupOriginalPositions.TryGetValue(item, out Vector2 o))
+                orig = o;
+            else
+                continue;
+
+            float iw = item.rectTransform.rect.width;
+            float ih = item.rectTransform.rect.height;
+
+            minDX = Mathf.Max(minDX, -orig.x);
+            maxDX = Mathf.Min(maxDX, parentRect.rect.width - iw - orig.x);
+            minDY = Mathf.Max(minDY, -orig.y);
+            maxDY = Mathf.Min(maxDY, parentRect.rect.height - ih - orig.y);
+        }
+
+        Vector2 clampedDelta = new Vector2(
+            Mathf.Clamp(rawDelta.x, minDX, maxDX),
+            Mathf.Clamp(rawDelta.y, minDY, maxDY)
+        );
+
+        rectTransform.anchoredPosition = originalPosition + clampedDelta;
+
         if (dragGroup != null && groupOriginalPositions != null)
         {
-            Vector2 delta = rectTransform.anchoredPosition - originalPosition;
             foreach (var it in dragGroup)
             {
                 if (it == this) continue;
                 if (groupOriginalPositions.TryGetValue(it, out Vector2 orig))
                 {
-                    it.rectTransform.anchoredPosition = orig + delta;
+                    it.rectTransform.anchoredPosition = orig + clampedDelta;
                 }
             }
         }
+
+        // 拖拽过程中跳过 UpdateBorderVisibility，避免每帧大量 GetComponent/FindChildByName 导致卡顿
+        // 边框视觉装饰不需要实时刷新，在 OnEndDrag 时统一更新即可
 
         var diff = rectTransform.anchoredPosition - vecPosition;
         if (Mathf.Abs(diff.x)> carWid/2 || 

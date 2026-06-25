@@ -1,13 +1,16 @@
 {
   "dependencies": {
-    
-    "com.coffee.ui-particle": "https://github.com/mob-sakai/ParticleEffectForUGUI.git", 
+    "cn.tuanjie.codely.bridge": "1.0.62",
+    "com.bytedance.starksdk": "file:../Assets/../LocalPackages/com.bytedance.starksdk@6.7.7",
+    "com.coffee.ui-particle": "https://github.com/mob-sakai/ParticleEffectForUGUI.git",
+    "com.qq.weixin.minigame": "https://gitee.com/wechat-minigame/minigame-tuanjie-transform-sdk.git",
+    "com.simonoliver.unityfigma": "https://github.com/simonoliver/UnityFigmaBridge.git",
     "com.unity.collab-proxy": "2.7.1",
     "com.unity.feature.2d": "2.0.1",
     "com.unity.feature.development": "1.0.1",
     "com.unity.memoryprofiler": "1.1.9",
-    "com.unity.render-pipelines.universal": "14.0.12",
-    "com.unity.textmeshpro": "3.0.7",
+    "com.unity.render-pipelines.universal": "14.2.0-t1",
+    "com.unity.textmeshpro": "3.0.9",
     "com.unity.timeline": "1.7.7",
     "com.unity.ugui": "1.0.0",
     "com.unity.visualscripting": "1.9.4",

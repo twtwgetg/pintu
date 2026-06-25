@@ -84,6 +84,18 @@ public class GameData
             Main.DispEvent("onpowerChange");
         }
     }
+
+    internal int coin
+    {
+        get
+        {
+            return int.Parse(data.Has("coin") ? data["coin"].ToString() : "1280");
+        }
+        set
+        {
+            data["coin"] = Math.Max(0, value).ToString();
+        }
+    }
     
     internal long lastpowerUpdateTime
     {
@@ -176,6 +188,16 @@ public class GameData
     {
         return data;
     }
+
+    internal void FillPower()
+    {
+        AddPower(10);
+    }
+
+    internal void AddPower(int amount)
+    {
+        power += Math.Max(0, amount);
+    }
 }
 public class PlayerData : MonoBehaviour
 {
@@ -254,5 +276,39 @@ public class PlayerData : MonoBehaviour
     void Update()
     {
         
+    }
+}
+
+public static class ExtendClass
+{
+    public static bool Has(this JsonData data,string vx)
+    {
+        if (data == null || vx == null || !data.IsObject)
+        {
+            return false;
+        }
+
+        try
+        {
+            IDictionary dict = data as IDictionary;
+            if (dict == null)
+            {
+                return false;
+            }
+
+            foreach (object key in dict.Keys)
+            {
+                if (key != null && key.ToString() == vx)
+                {
+                    return true;
+                }
+            }
+        }
+        catch
+        {
+            return false;
+        }
+
+        return false;
     }
 }

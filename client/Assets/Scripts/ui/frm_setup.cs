@@ -16,7 +16,7 @@ public class frm_setup : frmbase
         // 注册按钮点击事件
         btnInitialize.onClick.AddListener(OnInitializeClick);
         btnClose.onClick.AddListener(OnCloseClick);
-        btn_buytili.onClick.AddListener(OnBuyTiliClick);
+        //btn_buytili.onClick.AddListener(OnBuyTiliClick);
         // 监听显示事件
         Main.RegistEvent("show_setup", (x) =>
         {

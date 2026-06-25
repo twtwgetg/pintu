@@ -14,6 +14,8 @@ public class card : MonoBehaviour
     internal float uvWidth;
     internal float uvHeight;
     internal Texture texture;
+    public Sprite blocktex,frame;
+    public Image src;
     public TextMeshProUGUI level;
     RawImage rawImage
     {
@@ -32,7 +34,8 @@ public class card : MonoBehaviour
             {
                 rawImage.uvRect = new Rect(uvX, (1 - uvY - uvHeight), uvWidth, uvHeight);
                 rawImage.texture = texture;
-                level.gameObject.SetActive(false);
+                //level.gameObject.SetActive(false);
+                show();
             }
             else
             {
@@ -40,7 +43,7 @@ public class card : MonoBehaviour
                 {
                     rawImage.uvRect = new Rect(0, 0, 1, 1);
                     rawImage.texture = back;
-                    level.gameObject.SetActive(false);
+                    //level.gameObject.SetActive(false);
                     isTurning = true;
                     transform.DOScaleX(0, .5f).onComplete = () =>
                     {
@@ -48,7 +51,7 @@ public class card : MonoBehaviour
 
                         rawImage.uvRect = new Rect(uvX, (1 - uvY - uvHeight), uvWidth, uvHeight);
                         rawImage.texture = texture;
-
+                        show();
                         transform.DOScaleX(1, 0.5f).onComplete = () =>
                         {
                             transform.localScale = new Vector3(1, 1, 1);
@@ -58,14 +61,26 @@ public class card : MonoBehaviour
                     var x = transform.localPosition.x;
                     float wid = transform.GetComponent<RectTransform>().rect.width; 
                     PlayerData.gd.Open(levelid);
-                }); 
+                });
+                hide();
             }
         }
         else
         {
             rawImage.uvRect = new Rect(0, 0, 1, 1);
             rawImage.texture = back;
-            level.gameObject.SetActive(true);
+            //level.gameObject.SetActive(true);
+            hide();
         }
+    }
+
+    public void show()
+    {
+        this.src.sprite = frame;
+    }
+
+    public void hide()
+    {
+        this.src.sprite = blocktex;
     }
 }

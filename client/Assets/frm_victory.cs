@@ -16,7 +16,10 @@ public class frm_victory : frmbase
             show();
 
             DrLevel leevel =  x as DrLevel;
-            img.texture = Resources.Load(leevel.LevelFigure) as Texture2D;
+            Main.inst.StartCoroutine(Main.LoadTextureFromCDN(leevel.LevelFigure, (texture) =>
+            {
+                img.texture = texture;
+            }));
 
             return null;
         });
