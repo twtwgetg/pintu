@@ -3,3 +3,11 @@ Library
 Logs
 obj
 Temp
+client/.codely-cli
+client/LocalPackages
+client/douyin
+client/tmp
+landscapes
+tmp
+client/.vs
+*.csproj

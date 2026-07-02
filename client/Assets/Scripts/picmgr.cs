@@ -1,4 +1,4 @@
-using cfg;
+//using cfg;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -155,16 +155,16 @@ public class picmgr : MonoBehaviour
             return GetComponent<RectTransform>();
         }
     }
-    DrLevel curlevel;
-    // 发牌动画是否完成，未完成时禁止拖拽
+    GalleryLevel curlevel;
     public bool cardsReady = false;
-    public IEnumerator  LoadLevel(DrLevel leevel)
+    public IEnumerator LoadLevel(GalleryLevel level)
     {
-        curlevel = leevel;
-        width = leevel.LevelFigureX;
-        height = leevel.LevelFigureY;
-        
-        yield return Main.inst.StartCoroutine(Main.LoadTextureFromCDN(leevel.LevelFigure, (texture) =>
+        curlevel = level;
+        width = level.cols;
+        height = level.rows;
+
+        string url = GalleryManager.GetFigureUrl(level.figure);
+        yield return Main.inst.StartCoroutine(Main.LoadTextureFromCDN(url, (texture) =>
         {
             pic = texture;
         }));
@@ -172,13 +172,10 @@ public class picmgr : MonoBehaviour
         Canvas.ForceUpdateCanvases();
         Main.DispEvent("event_loading", false);
 
-        if(leevel.DifficultyTier==2)
-        {
+        if (level.difficulty == 2)
             Main.DispEvent("event_tips", "困难模式");
-        }
 
-        // 传递关卡ID、最大原位数量和难度参数
-        yield return Main.inst.StartCoroutine( CreateGridImages(leevel.Id, leevel.OutOfPlaceNumber, leevel.DifficultyTier == 2)); 
+        yield return Main.inst.StartCoroutine(CreateGridImages(level.id, level.outOfPlace, level.difficulty == 2));
     } 
     // Start is called before the first frame update
      
@@ -746,7 +743,7 @@ public class picmgr : MonoBehaviour
                         x.GetComponent<DraggableGridItem>().enabled=false;
                     }
                     
-                    Main.DispEvent("show_next", curlevel);
+                    Main.DispEvent("show_victory", curlevel);
                     clearOld();
                 };
             }

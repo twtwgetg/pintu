@@ -16,12 +16,16 @@ public class frm_game : frmbase
     {
         Main.RegistEvent("level_play", (x) =>
         {
+            if (PlayerData.DebugForcePowerZero)
+            {
+                PlayerData.gd.power = 0;
+            }
+
             // 检查并消耗power
             if (!PlayerData.gd.hasEnoughpower(10))
             {
                 Debug.Log("power不足，无法开始游戏");
-                // 可以在这里添加power不足的提示
-                Main.DispEvent("event_msg", "体力不足，无法开始游戏");
+                Main.DispEvent("show_rewarded_power");
                 return 0;
             }
             
@@ -33,8 +37,8 @@ public class frm_game : frmbase
             setup.gameObject.SetActive(false);
 
             mgr.ResizeChapterContent();
-            var leevel = datamgr.Instance.GetLevel((int)x);
-            level.text = $"{leevel.Id / 100000}-{leevel.Id % 100000}";
+            var leevel = GalleryManager.GetLevel((int)x);
+            level.text = $"当前关卡 {leevel.id / 100000}-{leevel.id % 100000}";
 
             Main.DispEvent("event_loading", true);
             show();
@@ -51,6 +55,11 @@ public class frm_game : frmbase
             Main.SendEvent("level_next");
             hide();
         });
+        Main.RegistEvent("show_victory", (a) =>
+        {
+            hide();
+            return null;
+        });
         back.onClick.AddListener(() =>
         {
             Main.SendEvent("level_back");
@@ -61,7 +70,7 @@ public class frm_game : frmbase
             Main.DispEvent("show_setup");
         });
     }
-    IEnumerator load(cfg.DrLevel leevel)
+    IEnumerator load(GalleryLevel leevel)
     {
         yield return StartCoroutine(mgr.LoadLevel(leevel));
 
@@ -69,7 +78,7 @@ public class frm_game : frmbase
         back.gameObject.SetActive(true);
         setup.gameObject.SetActive(true);
 
-        if (leevel.DifficultyTier == 2)
+        if (leevel.difficulty == 2)
         {
             var df = gb.Find("diff");
             df.gameObject.SetActive(true);

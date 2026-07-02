@@ -3,8 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEditor.PackageManager;
+using UnityEngine.UI; 
 
 #if UNITY_WEBGL && MINIGAME_SUBPLATFORM_DOUYIN
 using TTSDK;
@@ -29,6 +28,13 @@ public class frm_chapter : frmbase
      
     private TextMeshProUGUI btnText;
     private bool isShowingRewardedVideo;
+    private int rewardedVideoRequestId;
+    private Coroutine rewardedVideoTimeoutCoroutine;
+    private const float RewardedVideoTimeoutSeconds = 30f;
+
+#if UNITY_WEBGL && MINIGAME_SUBPLATFORM_DOUYIN
+    private TTRewardedVideoAd rewardedVideoAd;
+#endif
 
     private void Awake()
     { 
@@ -38,6 +44,7 @@ public class frm_chapter : frmbase
         {
             Main.inst.StartCoroutine(brushChapterContent());
             show();
+            ApplyDebugPowerZero();
             UpdateStaminaDisplay();
             return 1;
         });
@@ -47,9 +54,14 @@ public class frm_chapter : frmbase
             UpdateStaminaDisplay();
             return null;
         });
+        Main.RegistEvent("show_rewarded_power", (x) =>
+        {
+            ShowRewardedVideoForPower();
+            return null;
+        });
         Main.RegistEvent("level_next", (x) =>
         {
-            PlayerData.gd.levelid = datamgr.Instance.GetLevel(PlayerData.gd.levelid).NextLevel;
+            PlayerData.gd.levelid = GalleryManager.GetLevel(PlayerData.gd.levelid).nextLevel;
             Main.inst.StartCoroutine(brushChapterContent());
             show();
             return 1;
@@ -86,56 +98,178 @@ public class frm_chapter : frmbase
         });
     }
 
+    private void OnDestroy()
+    {
+        ResetRewardedVideoState(true);
+    }
+
     private void ShowRewardedVideoForPower()
     {
-        if (isShowingRewardedVideo) return;
+        if (isShowingRewardedVideo)
+        {
+            Debug.LogWarning("rewardvideo busy on new request, cleanup stale ad");
+            ResetRewardedVideoState(true);
+        }
+
         isShowingRewardedVideo = true;
+        int requestId = ++rewardedVideoRequestId;
+        StartRewardedVideoTimeout(requestId);
 
 #if UNITY_WEBGL && MINIGAME_SUBPLATFORM_DOUYIN
         if (Application.isEditor)
         {
             AddRewardedPower();
-            isShowingRewardedVideo = false;
+            ResetRewardedVideoState(false);
             return;
         }
 
         if (string.IsNullOrEmpty(rewardedVideoAdId))
         {
-            isShowingRewardedVideo = false;
+            ResetRewardedVideoState(false);
             Main.DispEvent("event_msg", "激励视频广告位未配置");
             return;
         }
-        Debug.LogWarning($"begin create rewardvideo");
-        TT.CreateRewardedVideoAd(
-            rewardedVideoAdId,
-            (isEnded, rewardCount) =>
+        Debug.LogWarning("begin create rewardvideo");
+        ResetRewardedVideoAdInstance();
+
+        rewardedVideoAd = TT.CreateRewardedVideoAd(new CreateRewardedVideoAdParam
+        {
+            AdUnitId = rewardedVideoAdId,
+            Multiton = false,
+            MultitonRewardMsg = null,
+            MultitonRewardTimes = 0,
+            ProgressTip = false
+        });
+        if (rewardedVideoAd == null)
+        {
+            Debug.LogWarning("rewardvideo create returned null");
+            ResetRewardedVideoState(true);
+            Main.DispEvent("event_msg", "视频暂不可用，请稍后再试");
+            return;
+        }
+        TTRewardedVideoAd currentAd = rewardedVideoAd;
+
+        rewardedVideoAd.OnLoad += () =>
+        {
+            if (rewardedVideoAd != currentAd || !isShowingRewardedVideo)
             {
-                isShowingRewardedVideo = false;
-                if (isEnded)
-                {
-                    AddRewardedPower();
-                }
-                else
-                {
-                    Main.DispEvent("event_msg", "看完视频可获得体力");
-                }
-            },
-            (errorCode, errorMsg) =>
+                Debug.LogWarning("rewardvideo stale load ignored");
+                return;
+            }
+
+            try
             {
-                isShowingRewardedVideo = false;
-                Debug.LogWarning($"Rewarded video failed: {errorCode} {errorMsg}");
+                Debug.LogWarning("rewardvideo loaded, show");
+                currentAd.Show();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Rewarded video show exception: {e.Message}");
+                ResetRewardedVideoState(true);
                 Main.DispEvent("event_msg", "视频暂不可用，请稍后再试");
-            },
-            false,
-            null,
-            0,
-            false
-        );
+            }
+        };
+        rewardedVideoAd.OnClose += (isEnded, rewardCount) =>
+        {
+            if (rewardedVideoAd != currentAd)
+            {
+                Debug.LogWarning("rewardvideo stale close ignored");
+                return;
+            }
+
+            Debug.LogWarning($"rewardvideo close isEnded={isEnded} rewardCount={rewardCount}");
+            ResetRewardedVideoState(true);
+            if (isEnded)
+            {
+                AddRewardedPower();
+            }
+            else
+            {
+                Main.DispEvent("event_msg", "看完视频可获得体力");
+            }
+        };
+        rewardedVideoAd.OnError += (errorCode, errorMsg) =>
+        {
+            if (rewardedVideoAd != currentAd)
+            {
+                Debug.LogWarning("rewardvideo stale error ignored");
+                return;
+            }
+
+            Debug.LogWarning($"Rewarded video failed: {errorCode} {errorMsg}");
+            ResetRewardedVideoState(true);
+            Main.DispEvent("event_msg", "视频暂不可用，请稍后再试");
+        };
+        try
+        {
+            rewardedVideoAd.Load();
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"Rewarded video load exception: {e.Message}");
+            ResetRewardedVideoState(true);
+            Main.DispEvent("event_msg", "视频暂不可用，请稍后再试");
+        }
 #else
         AddRewardedPower();
-        isShowingRewardedVideo = false;
+        ResetRewardedVideoState(false);
 #endif
     }
+
+    private void ApplyDebugPowerZero()
+    {
+        if (PlayerData.DebugForcePowerZero)
+        {
+            PlayerData.gd.power = 0;
+        }
+    }
+
+    private void StartRewardedVideoTimeout(int requestId)
+    {
+        StopRewardedVideoTimeout();
+        rewardedVideoTimeoutCoroutine = StartCoroutine(RewardedVideoTimeoutGuard(requestId));
+    }
+
+    private void StopRewardedVideoTimeout()
+    {
+        if (rewardedVideoTimeoutCoroutine == null) return;
+        StopCoroutine(rewardedVideoTimeoutCoroutine);
+        rewardedVideoTimeoutCoroutine = null;
+    }
+
+    private IEnumerator RewardedVideoTimeoutGuard(int requestId)
+    {
+        yield return new WaitForSecondsRealtime(RewardedVideoTimeoutSeconds);
+        if (!isShowingRewardedVideo || requestId != rewardedVideoRequestId) yield break;
+
+        Debug.LogWarning("rewardvideo timeout, cleanup");
+        rewardedVideoTimeoutCoroutine = null;
+        ResetRewardedVideoState(true);
+        Main.DispEvent("event_msg", "视频暂不可用，请稍后再试");
+    }
+
+    private void ResetRewardedVideoState(bool destroyAd)
+    {
+        ++rewardedVideoRequestId;
+        StopRewardedVideoTimeout();
+        isShowingRewardedVideo = false;
+
+#if UNITY_WEBGL && MINIGAME_SUBPLATFORM_DOUYIN
+        if (destroyAd)
+        {
+            ResetRewardedVideoAdInstance();
+        }
+#endif
+    }
+
+#if UNITY_WEBGL && MINIGAME_SUBPLATFORM_DOUYIN
+    private void ResetRewardedVideoAdInstance()
+    {
+        if (rewardedVideoAd == null) return;
+        rewardedVideoAd.Destroy();
+        rewardedVideoAd = null;
+    }
+#endif
 
     private void AddRewardedPower()
     {
@@ -162,6 +296,7 @@ public class frm_chapter : frmbase
     protected override void OnShow()
     {
         base.OnShow();
+        ApplyDebugPowerZero();
         UpdateStaminaDisplay();
     }
 
@@ -171,10 +306,11 @@ public class frm_chapter : frmbase
         levelname.gameObject.SetActive(false);
         Main.DispEvent("event_loading", true);
 
-        var chapter = datamgr.Instance.GetChapter(PlayerData.gd.currChapter);
+        var chapter = GalleryManager.GetChapter(PlayerData.gd.currChapter);
 
         Texture pic = null;
-        yield return Main.inst.StartCoroutine(Main.LoadTextureFromCDN(chapter.ChapterFigure, (texture) =>
+        string url = GalleryManager.GetFigureUrl(chapter.figure);
+        yield return Main.inst.StartCoroutine(Main.LoadTextureFromCDN(url, (texture) =>
         {
             pic = texture;
         }));
@@ -198,14 +334,14 @@ public class frm_chapter : frmbase
         }
 
         GridLayoutGroup grid = chaptercontent.GetComponent<GridLayoutGroup>();
-        ApplyChapterGridLayout(grid, chapter.ChapterFigureX, chapter.ChapterFigureY);
+        ApplyChapterGridLayout(grid, chapter.cols, chapter.rows);
 
-        for (int j = 0; j < chapter.ChapterFigureY; j++)
+        for (int j = 0; j < chapter.rows; j++)
         {
-            for (int i = 0; i < chapter.ChapterFigureX; i++)
+            for (int i = 0; i < chapter.cols; i++)
             {
-                int idx = j * chapter.ChapterFigureX + i;
-                int lid = chapter.LevelId[idx];
+                int idx = j * chapter.cols + i;
+                int lid = chapter.levelIds[idx];
 
                 GameObject cellObject = Instantiate(Resources.Load("levelpic")) as GameObject;
                 cellObject.transform.SetParent(chaptercontent, false);
@@ -220,10 +356,10 @@ public class frm_chapter : frmbase
                 cellRect.anchoredPosition = Vector2.zero;
                 cellRect.sizeDelta = Vector2.zero;
 
-                pcard.uvX = (float)i / chapter.ChapterFigureX;
-                pcard.uvY = (float)j / chapter.ChapterFigureY;
-                pcard.uvWidth = 1.0f / chapter.ChapterFigureX;
-                pcard.uvHeight = 1.0f / chapter.ChapterFigureY;
+                pcard.uvX = (float)i / chapter.cols;
+                pcard.uvY = (float)j / chapter.rows;
+                pcard.uvWidth = 1.0f / chapter.cols;
+                pcard.uvHeight = 1.0f / chapter.rows;
                 pcard.texture = pic;
                 pcard.Load();
                 int showLevel = lid % 100000;

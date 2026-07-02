@@ -201,14 +201,16 @@ public class GameData
 }
 public class PlayerData : MonoBehaviour
 {
+    public static readonly bool DebugForcePowerZero = false;
+
     bool chapterOpend()
     {
         bool ret = true;
         int cid = gd.currChapter;
-        var sst = datamgr.Instance.GetChapter(cid);
-        for (int i = 0; i < sst.LevelId.Count; i++)
+        var sst = GalleryManager.GetChapter(cid);
+        for (int i = 0; i < sst.levelIds.Count; i++)
         {
-            var xt = sst.LevelId[i];
+            var xt = sst.levelIds[i];
             if (!gd.isOpened(xt))
             {
                 ret = false;

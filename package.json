@@ -1,0 +1,28 @@
+{
+  "name": "pintu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/twtwgetg/pintu.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/twtwgetg/pintu/issues"
+  },
+  "homepage": "https://github.com/twtwgetg/pintu#readme",
+  "dependencies": {
+    "pdf-lib": "^1.17.1",
+    "pdfkit": "^0.19.1"
+  }
+}
