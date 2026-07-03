@@ -3,7 +3,7 @@
   "name": "默认风景图库",
   "theme": "自然风光",
   "description": "100 张 AI 生成风景图，包含日落、森林、草原、海岸等主题。",
-  "version": 2,
+  "version": 3,
   "cover": "landscape_001.jpg",
   "cdn": {
     "provider": "jsdelivr",

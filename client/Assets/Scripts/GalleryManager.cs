@@ -171,6 +171,25 @@ public static class GalleryManager
     public static string GetFigureUrl(string figureName)
     {
         if (_info == null) return null;
+        if (string.IsNullOrEmpty(figureName)) return null;
+
+        string persistentPath = $"{PersistentRoot}/{_activeId}/{figureName}";
+        if (File.Exists(persistentPath))
+        {
+            return "file://" + persistentPath.Replace("\\", "/");
+        }
+
+        string streamingPath = $"{StreamingRoot}/{_activeId}/{figureName}";
+        if (File.Exists(streamingPath))
+        {
+            return "file://" + streamingPath.Replace("\\", "/");
+        }
+
+        if (streamingPath.Contains("://") || streamingPath.Contains("!/"))
+        {
+            return streamingPath;
+        }
+
         return $"https://cdn.jsdelivr.net/gh/{_info.cdnOwner}/{_info.cdnRepo}/{figureName}";
     }
 
