@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using SimpleJSON;
 using UnityEngine;
@@ -68,11 +68,34 @@ public static class GalleryManager
     {
         string src = StreamingRoot + "/default";
         string dst = PersistentRoot + "/default";
-        if (Directory.Exists(dst)) return;
+        string srcJson = Path.Combine(src, "gallery.json");
+        string dstJson = Path.Combine(dst, "gallery.json");
+
+        if (Directory.Exists(dst) && ReadGalleryVersion(dstJson) >= ReadGalleryVersion(srcJson)) return;
 
         Directory.CreateDirectory(PersistentRoot);
+        if (Directory.Exists(dst))
+        {
+            Directory.Delete(dst, true);
+        }
+
         CopyDirectory(src, dst);
-        Debug.Log($"[Gallery] Copied default gallery: {src} → {dst}");
+        Debug.Log($"[Gallery] Updated default gallery: {src} -> {dst}");
+    }
+
+    private static int ReadGalleryVersion(string path)
+    {
+        if (!File.Exists(path)) return -1;
+
+        try
+        {
+            JSONNode root = JSON.Parse(File.ReadAllText(path));
+            return root?["version"].AsInt ?? -1;
+        }
+        catch
+        {
+            return -1;
+        }
     }
 
     public static bool LoadGallery(string id)
