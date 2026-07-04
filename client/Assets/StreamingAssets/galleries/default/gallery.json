@@ -1,9 +1,9 @@
 {
   "id": "default",
-  "name": "默认风景图库",
-  "theme": "自然风光",
-  "description": "100 张 AI 生成风景图，包含日落、森林、草原、海岸等主题。",
-  "version": 3,
+  "name": "\u9ed8\u8ba4\u56fe\u5e93",
+  "theme": "\u81ea\u7136\u98ce\u5149",
+  "description": "138 \u5f20 AI \u751f\u6210\u62fc\u56fe\u56fe\u7247\uff0c\u5305\u542b\u6cb9\u753b\u98ce\u666f\u3001\u9759\u7269\u4e0e\u56fd\u98ce\u5c71\u6c34\u4e3b\u9898\u3002",
+  "version": 4,
   "cover": "landscape_001.jpg",
   "cdn": {
     "provider": "jsdelivr",
@@ -87,7 +87,7 @@
       "figure": "landscape_003.jpg",
       "cols": 5,
       "rows": 5,
-      "nextChapter": 0,
+      "nextChapter": 4,
       "levels": [
         300001,
         300002,
@@ -114,6 +114,96 @@
         300023,
         300024,
         300025
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Chapter_title_4",
+      "figure": "landscape_079.jpg",
+      "cols": 5,
+      "rows": 5,
+      "nextChapter": 5,
+      "levels": [
+        400001,
+        400002,
+        400003,
+        400004,
+        400005,
+        400006,
+        400007,
+        400008,
+        400009,
+        400010,
+        400011,
+        400012,
+        400013,
+        400014,
+        400015,
+        400016,
+        400017,
+        400018,
+        400019,
+        400020,
+        400021,
+        400022,
+        400023,
+        400024,
+        400025
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Chapter_title_5",
+      "figure": "landscape_104.jpg",
+      "cols": 5,
+      "rows": 5,
+      "nextChapter": 6,
+      "levels": [
+        500001,
+        500002,
+        500003,
+        500004,
+        500005,
+        500006,
+        500007,
+        500008,
+        500009,
+        500010,
+        500011,
+        500012,
+        500013,
+        500014,
+        500015,
+        500016,
+        500017,
+        500018,
+        500019,
+        500020,
+        500021,
+        500022,
+        500023,
+        500024,
+        500025
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Chapter_title_6",
+      "figure": "landscape_129.jpg",
+      "cols": 5,
+      "rows": 2,
+      "nextChapter": 0,
+      "levels": [
+        600001,
+        600002,
+        600003,
+        600004,
+        600005,
+        600006,
+        600007,
+        600008,
+        600009,
+        600010
       ]
     }
   ],
@@ -1081,10 +1171,790 @@
       "rows": 4,
       "difficulty": 0,
       "outOfPlace": 0,
-      "nextLevel": 0,
+      "nextLevel": 400001,
       "distRange": [
         16,
         28
+      ]
+    },
+    {
+      "id": 400001,
+      "figure": "landscape_079.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400002,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400002,
+      "figure": "landscape_080.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400003,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400003,
+      "figure": "landscape_081.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400004,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400004,
+      "figure": "landscape_082.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400005,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400005,
+      "figure": "landscape_083.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400006,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400006,
+      "figure": "landscape_084.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400007,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400007,
+      "figure": "landscape_085.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400008,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400008,
+      "figure": "landscape_086.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400009,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400009,
+      "figure": "landscape_087.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 2,
+      "outOfPlace": 0,
+      "nextLevel": 400010,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 400010,
+      "figure": "landscape_088.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400011,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400011,
+      "figure": "landscape_089.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400012,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400012,
+      "figure": "landscape_090.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400013,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 400013,
+      "figure": "landscape_091.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400014,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400014,
+      "figure": "landscape_092.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400015,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400015,
+      "figure": "landscape_093.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400016,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 400016,
+      "figure": "landscape_094.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400017,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400017,
+      "figure": "landscape_095.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400018,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 400018,
+      "figure": "landscape_096.jpg",
+      "cols": 5,
+      "rows": 5,
+      "difficulty": 2,
+      "outOfPlace": 0,
+      "nextLevel": 400019,
+      "distRange": [
+        40,
+        70
+      ]
+    },
+    {
+      "id": 400019,
+      "figure": "landscape_097.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400020,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400020,
+      "figure": "landscape_098.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400021,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 400021,
+      "figure": "landscape_099.jpg",
+      "cols": 5,
+      "rows": 5,
+      "difficulty": 2,
+      "outOfPlace": 0,
+      "nextLevel": 400022,
+      "distRange": [
+        40,
+        70
+      ]
+    },
+    {
+      "id": 400022,
+      "figure": "landscape_100.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400023,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 400023,
+      "figure": "landscape_101.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 400024,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 400024,
+      "figure": "landscape_102.jpg",
+      "cols": 5,
+      "rows": 5,
+      "difficulty": 2,
+      "outOfPlace": 0,
+      "nextLevel": 400025,
+      "distRange": [
+        40,
+        70
+      ]
+    },
+    {
+      "id": 400025,
+      "figure": "landscape_103.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500001,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 500001,
+      "figure": "landscape_104.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500002,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500002,
+      "figure": "landscape_105.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500003,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500003,
+      "figure": "landscape_106.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500004,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500004,
+      "figure": "landscape_107.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500005,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500005,
+      "figure": "landscape_108.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500006,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500006,
+      "figure": "landscape_109.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500007,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500007,
+      "figure": "landscape_110.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500008,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500008,
+      "figure": "landscape_111.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500009,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500009,
+      "figure": "landscape_112.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 2,
+      "outOfPlace": 0,
+      "nextLevel": 500010,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 500010,
+      "figure": "landscape_113.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500011,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500011,
+      "figure": "landscape_114.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500012,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500012,
+      "figure": "landscape_115.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500013,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 500013,
+      "figure": "landscape_116.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500014,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500014,
+      "figure": "landscape_117.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500015,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500015,
+      "figure": "landscape_118.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500016,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 500016,
+      "figure": "landscape_119.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500017,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500017,
+      "figure": "landscape_120.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500018,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 500018,
+      "figure": "landscape_121.jpg",
+      "cols": 5,
+      "rows": 5,
+      "difficulty": 2,
+      "outOfPlace": 0,
+      "nextLevel": 500019,
+      "distRange": [
+        40,
+        70
+      ]
+    },
+    {
+      "id": 500019,
+      "figure": "landscape_122.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500020,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500020,
+      "figure": "landscape_123.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500021,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 500021,
+      "figure": "landscape_124.jpg",
+      "cols": 5,
+      "rows": 5,
+      "difficulty": 2,
+      "outOfPlace": 0,
+      "nextLevel": 500022,
+      "distRange": [
+        40,
+        70
+      ]
+    },
+    {
+      "id": 500022,
+      "figure": "landscape_125.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500023,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 500023,
+      "figure": "landscape_126.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 500024,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 500024,
+      "figure": "landscape_127.jpg",
+      "cols": 5,
+      "rows": 5,
+      "difficulty": 2,
+      "outOfPlace": 0,
+      "nextLevel": 500025,
+      "distRange": [
+        40,
+        70
+      ]
+    },
+    {
+      "id": 500025,
+      "figure": "landscape_128.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 600001,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 600001,
+      "figure": "landscape_129.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 600002,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 600002,
+      "figure": "landscape_130.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 600003,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 600003,
+      "figure": "landscape_131.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 600004,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 600004,
+      "figure": "landscape_132.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 600005,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 600005,
+      "figure": "landscape_133.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 600006,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 600006,
+      "figure": "landscape_134.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 600007,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 600007,
+      "figure": "landscape_135.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 600008,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 600008,
+      "figure": "landscape_136.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 600009,
+      "distRange": [
+        12,
+        18
+      ]
+    },
+    {
+      "id": 600009,
+      "figure": "landscape_137.jpg",
+      "cols": 4,
+      "rows": 4,
+      "difficulty": 2,
+      "outOfPlace": 0,
+      "nextLevel": 600010,
+      "distRange": [
+        16,
+        28
+      ]
+    },
+    {
+      "id": 600010,
+      "figure": "landscape_138.jpg",
+      "cols": 3,
+      "rows": 3,
+      "difficulty": 0,
+      "outOfPlace": 0,
+      "nextLevel": 0,
+      "distRange": [
+        12,
+        18
       ]
     }
   ]
