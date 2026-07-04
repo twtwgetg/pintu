@@ -3,12 +3,12 @@
   "name": "\u9ed8\u8ba4\u56fe\u5e93",
   "theme": "\u81ea\u7136\u98ce\u5149",
   "description": "138 \u5f20 AI \u751f\u6210\u62fc\u56fe\u56fe\u7247\uff0c\u5305\u542b\u6cb9\u753b\u98ce\u666f\u3001\u9759\u7269\u4e0e\u56fd\u98ce\u5c71\u6c34\u4e3b\u9898\u3002",
-  "version": 4,
+  "version": 5,
   "cover": "landscape_001.jpg",
   "cdn": {
     "provider": "jsdelivr",
     "owner": "twtwgetg",
-    "repo": "pintu_res@main"
+    "repo": "pintu_res@971fb40fbae46967016f7cc7f9f71b089f509b62"
   },
   "chapters": [
     {
